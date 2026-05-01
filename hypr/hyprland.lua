@@ -3,6 +3,7 @@
 require("monitors")
 require("hyprlua.binds")
 require("hyprlua.general")
+require("hyprlua.decoration")
 
 
 hl.gesture({
