@@ -2,7 +2,6 @@ require("hyprlua.env")
 
 -- hl.bind(keys, dispatcher, { flag1 = true, flag2 = true })
 
-hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 
 local closeWindowBind = hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 
@@ -67,3 +66,9 @@ hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 --hyprlauncher 
 hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel"),{release = true})
+
+
+--application binds
+hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(filemanager))
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(code_editor))

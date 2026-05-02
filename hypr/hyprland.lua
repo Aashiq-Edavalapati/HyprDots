@@ -4,6 +4,7 @@ require("monitors")
 require("hyprlua.binds")
 require("hyprlua.general")
 require("hyprlua.decoration")
+require("hyprlua.exec")
 
 
 hl.gesture({
@@ -19,7 +20,11 @@ hl.config({
 		touchpad = {
 			natural_scroll = true
 		}
-	}
+	},
+
+    misc = {
+        disable_hyprland_logo = true
+    }
   }
   )
 
