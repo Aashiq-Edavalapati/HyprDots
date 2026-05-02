@@ -72,3 +72,25 @@ hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel"),{release = true})
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(filemanager))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(code_editor))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
+
+
+--special workspaces
+hl.bind("SUPER + ALT + S", function ()
+    hl.dispatch(hl.dsp.workspace.toggle_special("spotify_special"))
+    hl.workspace_rule({ workspace = "special:spotify_special", on_created_empty = "spotify" })
+end)
+
+hl.bind("SUPER+ALT+D", function ()
+    hl.dispatch(hl.dsp.workspace.toggle_special("discord_special"))
+    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "discord"})
+end)
+
+
+
+--cliphist 
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-fuzzel-img"))
+
+
+--hyprpicker
+hl.bind(mainMod .. " + CTRL + V",hl.dsp.exec_cmd("hyprpicker -a"))

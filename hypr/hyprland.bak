@@ -23,9 +23,3 @@ source = ~/.config/hypr/hyprland/execs.conf
 
 
 #HELLO WORLD
-
-# Clipboard History (added by win11-clipboard-history)
-# bind = SUPER, V, exec, win11-clipboard-history # Commented by win11-clipboard-history
-
-# Clipboard History (added by win11-clipboard-history)
-# bind = SUPER, period, exec, win11-clipboard-history --emoji

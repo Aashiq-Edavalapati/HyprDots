@@ -5,6 +5,7 @@ require("hyprlua.binds")
 require("hyprlua.general")
 require("hyprlua.decoration")
 require("hyprlua.exec")
+require("hyprlua.workspace")
 
 
 hl.gesture({
@@ -23,7 +24,11 @@ hl.config({
 	},
 
     misc = {
-        disable_hyprland_logo = true
+        disable_hyprland_logo = true,
+    },
+    dwindle = {
+        special_scale_factor = 0.9,
+        
     }
   }
   )
