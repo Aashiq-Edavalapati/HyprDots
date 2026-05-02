@@ -62,3 +62,8 @@ hl.bind(mainMod .. "+SHIFT + right",hl.dsp.window.move({direction = "right"}))
 --fullscreen a window
 hl.bind(mainMod .. "+SHIFT+F",hl.dsp.window.fullscreen({mode = "fullscreen"}))
 hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
+
+
+
+--hyprlauncher 
+hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel"),{release = true})
