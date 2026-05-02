@@ -94,3 +94,8 @@ hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-fuzzel-img")
 
 --hyprpicker
 hl.bind(mainMod .. " + CTRL + V",hl.dsp.exec_cmd("hyprpicker -a"))
+
+--hyprshot
+hl.bind(mainMod .. " +SHIFT + S",hl.dsp.exec_cmd("hyprshot -z -m region"))
+hl.bind("Print",hl.dsp.exec_cmd("hyprshot -z -m output -m eDP-1"))
+hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
