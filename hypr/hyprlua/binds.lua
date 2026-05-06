@@ -83,7 +83,7 @@ end)
 
 hl.bind("SUPER+ALT+D", function ()
     hl.dispatch(hl.dsp.workspace.toggle_special("discord_special"))
-    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "discord"})
+    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "legcord"})
 end)
 
 
@@ -99,3 +99,38 @@ hl.bind(mainMod .. " + CTRL + V",hl.dsp.exec_cmd("hyprpicker -a"))
 hl.bind(mainMod .. " +SHIFT + S",hl.dsp.exec_cmd("hyprshot -z -m region"))
 hl.bind("Print",hl.dsp.exec_cmd("hyprshot -z -m output -m eDP-1"))
 hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
+
+
+--wf-Recorder
+-- hl.bind(mainMod .. " + R",
+--   hl.dsp.exec_cmd(
+--     "sh -c 'pgrep wf-recorder && pkill -INT wf-recorder || wf-recorder -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor'"
+--   )
+-- )
+
+
+-- hl.bind("SUPER + G", function()
+--     wpid = os.execute("pgrep kitty") 
+--     -- if wpid then
+--     --     hl.exec_cmd("pkill -INT wf-recorder")
+--     --     hl.notification.create({text = "Stopped wf-recorder", time="3000",icon = 2})
+--     --     return
+--     -- end
+--     hl.exec_cmd(" wf-recorder -g $(slurp) -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor")
+--     hl.notification.create({ text = tostring(wpid), time = "5000",icon = 1})
+-- end)
+
+
+hl.bind("SUPER + G", function()
+    local result = os.execute("pgrep -x wf-recorder")
+ 
+
+    if result ~= nil then
+        hl.exec_cmd("pkill -INT wf-recorder")
+        hl.notification.create({text = "Stopped wf-recorder", time="5000", icon = 2})
+        return
+    end
+
+    hl.exec_cmd("wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor")
+    hl.notification.create({text = "Started recording", time = "5000", icon = 1})
+end)

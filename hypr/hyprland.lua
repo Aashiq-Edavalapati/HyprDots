@@ -25,6 +25,7 @@ hl.config({
 
     misc = {
         disable_hyprland_logo = true,
+        vrr = true
     },
     dwindle = {
         special_scale_factor = 0.9,

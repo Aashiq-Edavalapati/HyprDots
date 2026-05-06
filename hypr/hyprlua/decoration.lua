@@ -6,7 +6,11 @@ hl.config (
             dim_special = 0.5,
 
             blur = {
-            -- special = true
+                enabled = false
+            -- special = trues
+          },
+          shadow = {
+            enabled = false
           }
         },
     }
