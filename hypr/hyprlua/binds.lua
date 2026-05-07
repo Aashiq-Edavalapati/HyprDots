@@ -69,6 +69,7 @@ hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel"),{release = true})
 
 
 --application binds
+-- hl.bind(mainMod .. " +ALT+E", hl.dsp.exec_cmd("kitty yazi"))
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(filemanager))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(code_editor))
@@ -86,6 +87,17 @@ hl.bind("SUPER+ALT+D", function ()
     hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "legcord"})
 end)
 
+hl.bind("SUPER+ALT+E", function ()
+    hl.dispatch(hl.dsp.workspace.toggle_special("yazi_special"))
+    hl.workspace_rule({workspace = "special:yazi_special", on_created_empty = "kitty yazi",})
+end)
+
+hl.bind("SUPER+ALT+RETURN", function ()
+    local mon = hl.get_active_monitor()
+    local left = math.floor(math.ceil(mon.width / mon.scale or 1) * 0.5)
+    hl.dispatch(hl.dsp.workspace.toggle_special("terminal_special"))
+    hl.workspace_rule({workspace = "special:terminal_special", on_created_empty = "kitty",layout = "scrolling",gaps_out = { left = left, right = 0, top = 0, bottom = 0 },})
+end)
 
 
 --cliphist 

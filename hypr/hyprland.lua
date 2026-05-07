@@ -6,6 +6,7 @@ require("hyprlua.general")
 require("hyprlua.decoration")
 require("hyprlua.exec")
 require("hyprlua.workspace")
+require("hyprlua.windowrule")
 
 
 hl.gesture({
@@ -25,11 +26,15 @@ hl.config({
 
     misc = {
         disable_hyprland_logo = true,
-        vrr = true
+        vrr = true,
+        disable_autoreload = false,
     },
     dwindle = {
         special_scale_factor = 0.9,
         
+    },
+    scrolling = {
+        direction = "down"
     }
   }
   )
