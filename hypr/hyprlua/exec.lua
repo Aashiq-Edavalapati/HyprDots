@@ -1,5 +1,6 @@
 hl.on("hyprland.start", function () 
   hl.exec_cmd("hyprpaper")
+  hl.exec_cmd("syncthing --no-browser")
   hl.exec_cmd("wl-paste --type text --watch cliphist store # Stores only text data")
   hl.exec_cmd("wl-paste --type image --watch cliphist store # Stores only text data")
   -- hl.exec_cmd("win11-clipboard-history")
