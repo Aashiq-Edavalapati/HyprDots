@@ -13,7 +13,7 @@ hl.config (
             -- enabled = false,
             color = mat.outline,
             color_inactive = mat.outline_variant,
-            range = 2
+            range = 1
             -- color = "rgb(AC128C)",
           }
         },
