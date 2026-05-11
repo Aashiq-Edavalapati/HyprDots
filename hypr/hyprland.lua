@@ -7,6 +7,7 @@ require("hyprlua.decoration")
 require("hyprlua.exec")
 require("hyprlua.workspace")
 require("hyprlua.windowrule")
+require("colors")
 
 
 hl.gesture({

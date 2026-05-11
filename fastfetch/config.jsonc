@@ -32,12 +32,7 @@
             "key": " ",
             "keyColor": "34",
         },
-        {
-            "type": "packages",
-            "format": "{} (pacman)",
-            "key": " ",
-            "keyColor": "34",  
-        },
+        
         {
             "type": "shell",
             "key": " ",
@@ -53,11 +48,7 @@
             "key": " ",
             "keyColor": "34", 
         },
-        {
-            "type": "cursor",
-            "key": " ",
-            "keyColor": "34", 
-        },
+        
         {
             "type": "terminalfont",
             "key": " ",

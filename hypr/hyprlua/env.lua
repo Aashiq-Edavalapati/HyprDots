@@ -6,3 +6,4 @@ browser = "zen-browser"
 
 
 hl.env("HYPRSHOT_DIR","/home/pirate/Pictures/hyprshot/")
+

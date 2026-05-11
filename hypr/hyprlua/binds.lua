@@ -65,7 +65,7 @@ hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 
 --hyprlauncher 
-hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel"),{release = true})
+hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel --config=/home/pirate/.config/fuzzel/colors.ini"),{release = true})
 
 
 --application binds
