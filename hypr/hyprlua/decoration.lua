@@ -10,9 +10,10 @@ hl.config (
             -- special = trues
           },
           shadow = {
-            -- enabled = false
+            -- enabled = false,
             color = mat.outline,
-            color_inactive = mat.outline_variant
+            color_inactive = mat.outline_variant,
+            range = 2
             -- color = "rgb(AC128C)",
           }
         },

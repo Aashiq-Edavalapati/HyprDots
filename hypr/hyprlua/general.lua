@@ -7,8 +7,8 @@ hl.config (
         gaps_in = 7,
         border_size = 1,
         col = {
-            active_border = mat.primary,
-            inactive_border = mat.surface
+            inactive_border = mat.primary,
+            active_border = mat.surface
         }
     }
 }
