@@ -24,6 +24,8 @@ hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-")
 
 hl.bind(mainMod .. "+ Z", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. "+ X",hl.dsp.window.resize(), {mouse = true})
+--pseudmode
+hl.bind("SUPER + P", hl.dsp.window.pseudo())
 
 
 -- change focused workspace
@@ -146,3 +148,5 @@ hl.bind("SUPER + G", function()
     hl.exec_cmd("wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor")
     hl.notification.create({text = "Started recording", time = "5000", icon = 1})
 end)
+
+

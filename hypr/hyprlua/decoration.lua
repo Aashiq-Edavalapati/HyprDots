@@ -1,4 +1,4 @@
-
+local mat = require("colors")
 hl.config (
     {
         decoration = {
@@ -6,11 +6,14 @@ hl.config (
             -- dim_special = 0.5,
 
             blur = {
-                enabled = false
+                -- enabled = false
             -- special = trues
           },
           shadow = {
-            enabled = false
+            -- enabled = false
+            color = mat.outline,
+            color_inactive = mat.outline_variant
+            -- color = "rgb(AC128C)",
           }
         },
     }

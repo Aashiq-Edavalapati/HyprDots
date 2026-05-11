@@ -8,35 +8,12 @@ require("hyprlua.exec")
 require("hyprlua.workspace")
 require("hyprlua.windowrule")
 require("colors")
+require("hyprlua.input")
+require("hyprlua.misc")
+require("hyprlua.layout")
 
 
-hl.gesture({
-    fingers = 4,
-    direction = "horizontal",
-    action = "workspace"
-})
 
 
-hl.config({
 
-	input =  {
-		touchpad = {
-			natural_scroll = true
-		}
-	},
-
-    misc = {
-        disable_hyprland_logo = true,
-        vrr = true,
-        disable_autoreload = false,
-    },
-    dwindle = {
-        special_scale_factor = 0.9,
-        
-    },
-    scrolling = {
-        direction = "down"
-    }
-  }
-  )
 
