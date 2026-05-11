@@ -61,3 +61,9 @@ input_path = '~/.config/matugen/templates/obsidian.css'
 output_path = "/home/pirate/Obsidian-Vault/Pirates' Vault/.obsidian/snippets/matugen.css"
 # ...
 
+# ...
+[templates.starship]
+input_path = '~/.config/matugen/templates/starship-colors.toml'
+output_path = '~/.config/starship.toml'
+# ...
+
