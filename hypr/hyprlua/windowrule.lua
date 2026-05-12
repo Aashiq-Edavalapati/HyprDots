@@ -2,9 +2,8 @@ local mat = require("colors")
 hl.window_rule({
 
     match = {
-        workspace = "s[true]"
+        class = "waypaper"
     },
-    -- border_color = mat.tertiary_container
-
-
+    float = true,
+    persistent_size = true
 })

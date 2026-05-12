@@ -8,7 +8,7 @@ hl.monitor({
 hl.monitor({
   output = "eDP-1",
   --mirror = "HDMI-A-1",
-  -- disabled = true,:
+  -- disabled = true,
   mode = "1920x1200@60",
   position = "0x0",
   scale = "1",
