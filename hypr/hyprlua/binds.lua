@@ -86,7 +86,7 @@ end)
 
 hl.bind("SUPER+ALT+D", function ()
     hl.dispatch(hl.dsp.workspace.toggle_special("discord_special"))
-    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "discord"})
+    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "vesktop"})
 end)
 
 hl.bind("SUPER+ALT+E", function ()

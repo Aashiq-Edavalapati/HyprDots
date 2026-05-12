@@ -45,8 +45,8 @@ post_hook = 'dunstctl reload'
 # ...
 [templates.steam]
 input_path = '~/.config/matugen/templates/steam.css'
-output_path = '~/.config/AdwSteamGtk/custom.css'
-post_hook =  'adwaita-steam-gtk -i'
+output_path = "~/.local/share/Steam/steamui/adwaita/colorthemes/everforest/everforest.css" 
+#Put theme to everforest
 # ..
 
 # ...
@@ -79,3 +79,26 @@ input_path = '~/.config/matugen/templates/spicetify.ini'
 output_path = '~/.config/spicetify/Themes/Sleek/color.ini'
 post_hook = 'spicetify watch -s 2>&1 | sed "/Reloaded Spotify/q"'
 # ...
+
+
+
+# ...
+[templates.color-scheme]
+input_path = '~/.config/matugen/templates/Matugen.colors'
+output_path = '~/.local/share/color-schemes/Matugen.colors'
+# ...
+
+
+# ...
+[templates.vesktop]
+input_path = '~/.config/matugen/templates/midnight-discord.css'
+output_path = '~/.config/vesktop/themes/midnight-discord.css'
+
+# VS Code Matugen Theme extension
+[templates.vscode-raw]
+input_path = '~/.config/matugen/templates/vscode-colors'
+output_path = '~/.cache/matugen/vscode-colors'
+
+[templates.vscode-json]
+input_path = '~/.config/matugen/templates/vscode-colors.json'
+output_path = '~/.cache/matugen/vscode-colors.json'
