@@ -18,3 +18,8 @@ hl.config({
 		}
 	},
 })
+
+hl.device({
+	name = "etps/2-elantech-touchpad",
+	enabled = false,
+})
