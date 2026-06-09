@@ -15,3 +15,7 @@ function y
 	end
 	command rm -f -- "$tmp"
 end
+
+
+# Added by Antigravity CLI installer
+set -gx PATH "/home/pirate/.local/bin" $PATH
