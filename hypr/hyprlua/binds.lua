@@ -150,3 +150,6 @@ hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
 -- end)
 
 
+--TIDE-ISLAND-OVERVIEW
+hl.bind("SUPER + TAB",hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle"))
+

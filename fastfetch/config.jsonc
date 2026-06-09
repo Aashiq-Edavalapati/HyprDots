@@ -4,7 +4,7 @@
     "logo": {
     	"source": "~/Pictures/sans.png",
     	"type": "kitty",
-    	"height": 18,
+    	"height": 10,
     	"padding": {
     		"top": 2
     	}
@@ -13,10 +13,6 @@
         "separator": " "
     },
     "modules": [
-	"break",
-        "break",
-        "break",
-	"break",
 	{
             "type": "title",
             "keyWidth": 10
@@ -49,11 +45,11 @@
             "keyColor": "34", 
         },
         
-        {
-            "type": "terminalfont",
-            "key": " ",
-            "keyColor": "34", 
-        },
+        // {
+        //     "type": "terminalfont",
+        //     "key": " ",
+        //     "keyColor": "34", 
+        // },
         {
             "type": "uptime",
             "key": " ",
@@ -75,9 +71,9 @@
             "key": " ",
             "keyColor": "34", 
         },
-        "break",
+        // "break",
         
-        "break",
-        "break",
+        // "break",
+        // "break",
     ]
 }
