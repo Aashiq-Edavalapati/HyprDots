@@ -36,10 +36,10 @@ input_path = '~/.config/matugen/templates/cava-colors.ini'
 output_path = '~/.config/cava/themes/matugen'
 
 # ...
-[templates.dunst]
-input_path = '~/.config/matugen/templates/dunstrc-colors'
-output_path = '~/.config/dunst/dunstrc'
-post_hook = 'dunstctl reload'
+# [templates.dunst]
+# input_path = '~/.config/matugen/templates/dunstrc-colors'
+# output_path = '~/.config/dunst/dunstrc'
+# post_hook = 'dunstctl reload'
 # ...
 
 # ...
