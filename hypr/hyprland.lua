@@ -12,8 +12,10 @@ require("hyprlua.input")
 require("hyprlua.misc")
 require("hyprlua.layout")
 
+hl.env("HYPRCURSOR_THEME", "Moga")
+hl.env("HYPRCURSOR_SIZE", "24")
 
-
-
+hl.env("XCURSOR_THEME", "Moga")
+hl.env("XCURSOR_SIZE", "24")
 
 
