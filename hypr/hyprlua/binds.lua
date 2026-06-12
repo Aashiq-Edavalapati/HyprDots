@@ -91,7 +91,7 @@ end)
 
 hl.bind("SUPER+ALT+E", function ()
     hl.dispatch(hl.dsp.workspace.toggle_special("yazi_special"))
-    hl.workspace_rule({workspace = "special:yazi_special", on_created_empty = "kitty yazi",})
+    hl.workspace_rule({workspace = "special:yazi_special", on_created_empty = "kitty sudo yazi",})
 end)
 
 hl.bind("SUPER+ALT+RETURN", function ()
