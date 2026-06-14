@@ -29,6 +29,7 @@ hl.bind("SUPER + P", hl.dsp.window.pseudo())
 
 
 -- change focused workspace
+-- 1. Using number keys
 hl.bind(mainMod .. "+ 1",hl.dsp.focus({workspace = 1}))
 hl.bind(mainMod .. "+ 2",hl.dsp.focus({workspace = 2}))
 hl.bind(mainMod .. "+ 3",hl.dsp.focus({workspace = 3}))
@@ -38,8 +39,12 @@ hl.bind(mainMod .. "+ 6",hl.dsp.focus({workspace = 6}))
 hl.bind(mainMod .. "+ 7",hl.dsp.focus({workspace = 7}))
 hl.bind(mainMod .. "+ 8",hl.dsp.focus({workspace = 8}))
 hl.bind(mainMod .. "+ 9",hl.dsp.focus({workspace = 9}))
+-- 2. Using mouse scroll
+hl.bind("SUPER + mouse_up", hl.dsp.focus({ workspace = "r+1" }))
+hl.bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "r-1" }))
 
 --move window to a specific tab
+-- 1. Using number keys
 hl.bind(mainMod .. " + ALT + 1",hl.dsp.window.move({workspace = 1  }) )
 hl.bind(mainMod .. " + ALT + 2",hl.dsp.window.move({workspace = 2  }) )
 hl.bind(mainMod .. " + ALT + 3",hl.dsp.window.move({workspace = 3  }) )
@@ -49,6 +54,9 @@ hl.bind(mainMod .. " + ALT + 6",hl.dsp.window.move({workspace = 6  }) )
 hl.bind(mainMod .. " + ALT + 7",hl.dsp.window.move({workspace = 7  }) )
 hl.bind(mainMod .. " + ALT + 8",hl.dsp.window.move({workspace = 8  }) )
 hl.bind(mainMod .. " + ALT + 9",hl.dsp.window.move({workspace = 9  }) )
+-- 2. Using mouse scroll
+hl.bind("SUPER + ALT + mouse_up", hl.dsp.window.move({ workspace = "+1" }))
+hl.bind("SUPER + ALT + mouse_down", hl.dsp.window.move({ workspace = "-1" }))
 
 --toggle floating state
 hl.bind(mainMod .. "+ ALT + SPACE", hl.dsp.window.float())

@@ -14,3 +14,12 @@ hl.window_rule({
     },
     opacity=0.85
 })
+
+hl.window_rule({
+    match = {
+        class = "thunar"
+    },
+    float = true,
+    size = { 800, 550 },
+    center = true
+})
