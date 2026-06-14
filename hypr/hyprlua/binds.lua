@@ -67,12 +67,13 @@ hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 
 --hyprlauncher 
-hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel --config=/home/pirate/.config/fuzzel/colors.ini"),{release = true})
+hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel --config=/home/aashiqed/.config/fuzzel/colors.ini"),{release = true})
 
 
 --application binds
 -- hl.bind(mainMod .. " +ALT+E", hl.dsp.exec_cmd("kitty yazi"))
-hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
+-- hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(filemanager))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(code_editor))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
