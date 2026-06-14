@@ -21,9 +21,14 @@ hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+")
 hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"),                  { locked = true, repeating = true })
 
 
-
+-- Window drag & resize
+-- 1. Using keyboard shortcuts + mouse movement
 hl.bind(mainMod .. "+ Z", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. "+ X",hl.dsp.window.resize(), {mouse = true})
+-- 2. Using mouse buttons (while holding the modifier key)
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
+hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
 --pseudmode
 hl.bind("SUPER + P", hl.dsp.window.pseudo())
 
@@ -170,3 +175,8 @@ hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
 --TIDE-ISLAND-OVERVIEW
 hl.bind("SUPER + TAB",hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle"))
 
+
+-- btop
+hl.bind("CTRL + SHIFT + code:9",
+    hl.dsp.exec_cmd("kitty --title btop btop")
+)

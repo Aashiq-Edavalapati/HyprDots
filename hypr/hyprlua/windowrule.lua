@@ -23,3 +23,13 @@ hl.window_rule({
     size = { 800, 550 },
     center = true
 })
+
+hl.window_rule({
+    match = {
+        class = "kitty",
+        title = "btop"
+    },
+    float = true,
+    size = { 1000, 700 },
+    center = true
+})
