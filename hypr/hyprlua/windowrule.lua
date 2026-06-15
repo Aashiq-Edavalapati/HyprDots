@@ -10,14 +10,14 @@ hl.window_rule({
 hl.window_rule({
 
     match = {
-        class = "kitty|code|firefox|thunar|yazi|discord"
+        class = "kitty|code|firefox|thunar|org.kde.dolphin|yazi|discord"
     },
-    opacity=0.85
+    opacity=0.77
 })
 
 hl.window_rule({
     match = {
-        class = "thunar"
+        class = "thunar|org.kde.dolphin"
     },
     float = true,
     size = { 800, 550 },
@@ -30,6 +30,6 @@ hl.window_rule({
         title = "btop"
     },
     float = true,
-    size = { 1000, 700 },
+    size = { 1000, 750 },
     center = true
 })

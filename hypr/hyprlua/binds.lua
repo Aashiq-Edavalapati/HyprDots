@@ -83,8 +83,7 @@ hl.bind(mainMod .. "+SHIFT + right",hl.dsp.window.move({direction = "right"}))
 
 --fullscreen a window
 hl.bind(mainMod .. "+SHIFT+F",hl.dsp.window.fullscreen({mode = "fullscreen"}))
-hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
-
+hl.bind(mainMod .. "+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 
 --hyprlauncher 
