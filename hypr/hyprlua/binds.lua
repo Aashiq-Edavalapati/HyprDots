@@ -11,6 +11,10 @@ hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
 
+-- Cycle through windows with "ALT + TAB"
+hl.bind("ALT + TAB", hl.dsp.window.cycle_next())
+hl.bind("ALT + SHIFT + TAB", hl.dsp.window.cycle_next({ next = false }))
+
 
 -- Laptop multimedia keys for volume and LCD brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
@@ -180,3 +184,7 @@ hl.bind("SUPER + TAB",hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call ove
 hl.bind("CTRL + SHIFT + code:9",
     hl.dsp.exec_cmd("kitty --title btop btop")
 )
+
+
+-- Lock screen
+hl.bind("SUPER + L", hl.dsp.exec_cmd("~/.local/share/quickshell-lockscreen/lock.sh"))
