@@ -19,5 +19,3 @@ end
 alias yazi="sudo yazi"
 
 
-# Added by Antigravity CLI installer
-set -gx PATH "/home/pirate/.local/bin" $PATH
