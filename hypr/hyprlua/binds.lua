@@ -82,14 +82,15 @@ hl.bind(mainMod .. "+SHIFT + right",hl.dsp.window.move({direction = "right"}))
 
 
 --fullscreen a window
-hl.bind(mainMod .. "+SHIFT+F",hl.dsp.window.fullscreen({mode = "fullscreen"}))
+hl.bind(mainMod .. "+F",hl.dsp.window.fullscreen({mode = "fullscreen"}))
+-- maximize a window
 hl.bind(mainMod .. "+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 
 --hyprlauncher 
 -- hl.bind("SUPER + SUPER_L" ,hl.dsp.exec_cmd("fuzzel --config=/home/aashiqed/.config/fuzzel/colors.ini"),{release = true})
 hl.bind("SUPER + SUPER_L",
-    hl.dsp.exec_cmd("pgrep -x fuzzel && pkill -x fuzzel || fuzzel --config=/home/aashiqed/.config/fuzzel/colors.ini"),
+    hl.dsp.exec_cmd("pgrep -x rofi && pkill -x rofi || rofi -show drun -show-icons -theme ~/.local/src/rofi-themes-collection/themes/windows11-grid-dark.rasi"),
     { release = true }
 )
 
@@ -128,11 +129,11 @@ end)
 
 
 --cliphist 
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-fuzzel-img"))
-
+-- hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-fuzzel-img"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-rofi-img"))
 
 --hyprpicker
-hl.bind(mainMod .. " + CTRL + V",hl.dsp.exec_cmd("hyprpicker -a"))
+hl.bind(mainMod .. " +SHIFT + C",hl.dsp.exec_cmd("hyprpicker -a"))
 
 --hyprshot
 hl.bind(mainMod .. " +SHIFT + S",hl.dsp.exec_cmd("hyprshot -z -m region"))
@@ -178,6 +179,7 @@ hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
 --TIDE-ISLAND-OVERVIEW
 hl.bind("SUPER + TAB",hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle"))
 
+hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call island toggleControlCenter"))
 
 -- btop
 hl.bind("CTRL + SHIFT + code:9",
