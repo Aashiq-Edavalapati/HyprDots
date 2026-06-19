@@ -165,7 +165,7 @@ end)
 --TIDE-ISLAND-OVERVIEW
 hl.bind("SUPER + TAB",hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle"))
 
-hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc -p ~/.local/src/HyprDots/tide-island call island toggleControlCenter"))
+hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call island toggleControlCenter"))
 
 -- btop
 hl.bind("CTRL + SHIFT + code:9",
