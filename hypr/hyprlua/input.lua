@@ -1,7 +1,4 @@
 
-
-
-
 hl.gesture({
     fingers = 4,
     direction = "horizontal",
@@ -19,7 +16,7 @@ hl.config({
 	},
 })
 
-hl.device({
-	name = "etps/2-elantech-touchpad",
-	enabled = false,
-})
+-- hl.device({
+-- 	name = "etps/2-elantech-touchpad",
+-- 	enabled = false,
+-- })

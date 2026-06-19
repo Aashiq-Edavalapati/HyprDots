@@ -86,7 +86,7 @@ end)
 
 hl.bind("SUPER+ALT+D", function ()
     hl.dispatch(hl.dsp.workspace.toggle_special("discord_special"))
-    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "vesktop"})
+    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "discord"})
 end)
 
 hl.bind("SUPER+ALT+E", function ()
@@ -135,19 +135,19 @@ hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
 -- end)
 
 
--- hl.bind("SUPER + G", function()
---     local result = os.execute("pgrep -x wf-recorder")
+hl.bind("SUPER + G", function()
+    local result = os.execute("pgrep -x wf-recorder")
  
 
---     if result ~= nil then
---         hl.exec_cmd("pkill -INT wf-recorder")
---         hl.notification.create({text = "Stopped wf-recorder", time="5000", icon = 2})
---         return
---     end
+    if result ~= nil then
+        hl.exec_cmd("pkill -INT wf-recorder")
+        hl.notification.create({text = "Stopped wf-recorder", time="5000", icon = 2})
+        return
+    end
 
---     hl.exec_cmd("wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor")
---     hl.notification.create({text = "Started recording", time = "5000", icon = 1})
--- end)
+    hl.exec_cmd("wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor")
+    hl.notification.create({text = "Started recording", time = "5000", icon = 1})
+end)
 
 
 --TIDE-ISLAND-OVERVIEW
