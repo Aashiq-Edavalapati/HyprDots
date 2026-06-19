@@ -15,6 +15,7 @@ Item {
     property string dateText: "Mon, Jan 01"
     property int currentWorkspace: 1
     property bool customSwipeActive: false
+    property bool topRightVisualizerActive: false
 
     readonly property var configuredLeftSwipeIds: buildNormalizedSwipeItemIds(configuredLeftSwipeItems)
     readonly property bool usesSystemStatsModule: configuredLeftSwipeIds.indexOf("cpu") !== -1
@@ -60,6 +61,7 @@ Item {
     }
     onUsesCavaModuleChanged: updateCavaSubscription()
     onCustomSwipeActiveChanged: updateCavaSubscription()
+    onTopRightVisualizerActiveChanged: updateCavaSubscription()
     onBatteryCapacityChanged: syncCustomLeftItems()
     onIsChargingChanged: syncCustomLeftItems()
     onCurrentVolumeChanged: syncCustomLeftItems()
@@ -153,7 +155,7 @@ Item {
     }
 
     function updateCavaSubscription() {
-        const active = usesCavaModule && customSwipeActive;
+        const active = (usesCavaModule && customSwipeActive) || topRightVisualizerActive;
         SystemServices.setCavaClientActive(systemServicesClientId, active);
         if (active)
             cavaLevels = SystemServices.cavaLevels;

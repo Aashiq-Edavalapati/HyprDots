@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Services.Mpris
 import Quickshell.Wayland
 import IslandBackend
 import "qml/common"
@@ -80,6 +81,14 @@ PanelWindow {
             y: Math.floor(bluetoothConnectivityDetailShell.y)
             width: bluetoothConnectivityDetailShell.visible ? Math.ceil(bluetoothConnectivityDetailShell.width) : 0
             height: bluetoothConnectivityDetailShell.visible ? Math.ceil(bluetoothConnectivityDetailShell.height) : 0
+        }
+
+        Region {
+            intersection: Intersection.Combine
+            x: Math.floor(topRightComponent.x)
+            y: Math.floor(topRightComponent.y)
+            width: topRightComponent.visible ? Math.ceil(topRightComponent.width) : 0
+            height: topRightComponent.visible ? Math.ceil(topRightComponent.height) : 0
         }
     }
     implicitHeight: root.overviewVisible
@@ -501,6 +510,7 @@ PanelWindow {
             dateText: timeObj.currentDateLabel
             currentWorkspace: islandContainer.currentWs
             customSwipeActive: customSwipeLoader.active
+            topRightVisualizerActive: topRightComponent.musicPlaying
 
             onTransientRequested: function(icon, progress, text) {
                 islandContainer.showTransientCapsule(icon, progress, text);
@@ -1683,6 +1693,20 @@ PanelWindow {
             iconFontFamily: root.iconFontFamily
             textFontFamily: root.textFontFamily
             heroFontFamily: root.heroFontFamily
+        }
+
+        TopRightStatus {
+            id: topRightComponent
+            anchors.right: parent.right
+            anchors.rightMargin: 16
+            anchors.top: parent.top
+            anchors.topMargin: 4
+            cavaLevels: islandContainer.cavaLevels
+            batteryCapacity: islandContainer.batteryCapacity
+            isCharging: islandContainer.isCharging
+            musicPlaying: islandContainer.activePlayer && islandContainer.activePlayer.playbackState === MprisPlaybackState.Playing
+            iconFontFamily: root.iconFontFamily
+            textFontFamily: root.textFontFamily
         }
     }
 

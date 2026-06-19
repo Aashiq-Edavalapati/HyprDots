@@ -179,13 +179,12 @@ hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
 --TIDE-ISLAND-OVERVIEW
 hl.bind("SUPER + TAB",hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle"))
 
-hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call island toggleControlCenter"))
+hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc -p ~/.local/src/HyprDots/tide-island call island toggleControlCenter"))
 
 -- btop
 hl.bind("CTRL + SHIFT + code:9",
-    hl.dsp.exec_cmd("kitty --title btop btop")
+    hl.dsp.exec_cmd("pgrep -x btop && pkill -x btop || kitty --title btop btop")
 )
-
 
 -- Lock screen
 hl.bind("SUPER + L", hl.dsp.exec_cmd("~/.local/share/quickshell-lockscreen/lock.sh"))
