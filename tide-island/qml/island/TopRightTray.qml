@@ -82,10 +82,13 @@ Item {
                     font.weight: Font.Bold
                 }
 
+                HoverHandler {
+                    id: hoverHandler
+                }
+
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
-                    hoverEnabled: true
 
                     onClicked: (mouse) => {
                         if (mouse.button === Qt.LeftButton) {
@@ -94,19 +97,19 @@ Item {
                             if (delegateRoot.itemData.hasMenu) {
                                 const mappedPoint = mapToItem(null, mouse.x, mouse.y);
                                 if (root.window) {
-                                    delegateRoot.itemData.display(root.window, mappedPoint.x, mappedPoint.y);
+                                    delegateRoot.itemData.display(root.window, Math.round(mappedPoint.x), Math.round(mappedPoint.y));
                                 }
                             }
                         }
                     }
+                }
 
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "white"
-                        opacity: parent.containsMouse ? 0.15 : 0.0
-                        radius: 4
-                        Behavior on opacity { NumberAnimation { duration: 150 } }
-                    }
+                Rectangle {
+                    anchors.fill: parent
+                    color: "white"
+                    opacity: hoverHandler.hovered ? 0.15 : 0.0
+                    radius: 4
+                    Behavior on opacity { NumberAnimation { duration: 150 } }
                 }
             }
         }
