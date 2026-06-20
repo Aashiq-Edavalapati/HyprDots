@@ -1077,7 +1077,7 @@ Item {
                     width: 24
                     height: 24
                     radius: 12
-                    color: settingsButtonMouse.containsMouse ? StyleTokens.buttonFillHover : StyleTokens.transparent
+                    color: settingsButtonMouse.containsMouse ? "#26ffffff" : StyleTokens.transparent
                     anchors.verticalCenter: parent.verticalCenter
 
                     Behavior on color {
@@ -1087,7 +1087,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: "\uf013" // Gear icon
-                        color: settingsButtonMouse.containsMouse ? StyleTokens.textPrimaryBright : StyleTokens.textSecondary
+                        color: settingsButtonMouse.containsMouse ? "#ffffff" : StyleTokens.textSecondary
                         font.pixelSize: 14
                         font.family: iconFontFamily
                     }
