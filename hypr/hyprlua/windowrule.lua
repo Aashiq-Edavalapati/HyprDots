@@ -8,11 +8,7 @@ hl.window_rule({
 
     },
 
-    float = true,
-    opaque = false,
-    no_blur = false,
-    stay_focused = false,
-    persistent_size = true,
-    opacity = 0.0
+    float = true
+ 
 
 })
