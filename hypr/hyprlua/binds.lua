@@ -78,12 +78,6 @@ hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 
 
---hyprlauncher 
--- hl.bind(
---     "SUPER + SUPER_L",
---     hl.dsp.exec_cmd("fuzzel --config=" .. os.getenv("HOME") .. "/.config/fuzzel/colors.ini"),
---     { release = true }
--- )
 hl.bind(
     "SUPER + SUPER_L",
     hl.dsp.exec_cmd(
@@ -124,8 +118,7 @@ hl.bind("SUPER+ALT+RETURN", function ()
 end)
 
 
---cliphist 
--- hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-fuzzel-img"))
+
 hl.bind(
     mainMod .. " + V",
     hl.dsp.exec_cmd(
