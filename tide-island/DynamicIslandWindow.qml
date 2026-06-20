@@ -1724,6 +1724,7 @@ PanelWindow {
 
                 sourceComponent: Component {
                     ControlCenterLayer {
+                        shellRootController: root.shellRootController
                         iconFontFamily: root.iconFontFamily
                         textFontFamily: root.textFontFamily
                         heroFontFamily: root.heroFontFamily

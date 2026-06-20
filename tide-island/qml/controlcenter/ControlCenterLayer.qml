@@ -13,6 +13,7 @@ Item {
     property string iconFontFamily: userConfig.iconFontFamily
     property string textFontFamily: userConfig.textFontFamily
     property string heroFontFamily: userConfig.heroFontFamily
+    property var shellRootController: null
     // ... rest of properties ...
 
     scale: showCondition ? 1.0 : 0.12
@@ -1065,71 +1066,109 @@ Item {
             }
 
             Row {
+                id: headerRightRow
                 anchors.right: parent.right
                 anchors.rightMargin: 2
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 5
+                spacing: 12
 
-                Text {
-                    text: controlCenter.chargingIconGlyph
-                    color: StyleTokens.white
-                    font.pixelSize: 13
-                    font.family: iconFontFamily
-                    visible: isCharging
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                Text {
-                    text: batteryCapacity + "%"
-                    color: StyleTokens.white
-                    font.pixelSize: 13
-                    font.family: textFontFamily
-                    font.weight: Font.DemiBold
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                Item {
-                    width: 28
-                    height: 14
+                Rectangle {
+                    id: settingsButton
+                    width: 24
+                    height: 24
+                    radius: 12
+                    color: settingsButtonMouse.containsMouse ? StyleTokens.buttonFillHover : StyleTokens.transparent
                     anchors.verticalCenter: parent.verticalCenter
 
-                    Rectangle {
+                    Behavior on color {
+                        ColorAnimation { duration: 150 }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\uf013" // Gear icon
+                        color: settingsButtonMouse.containsMouse ? StyleTokens.textPrimaryBright : StyleTokens.textSecondary
+                        font.pixelSize: 14
+                        font.family: iconFontFamily
+                    }
+
+                    MouseArea {
+                        id: settingsButtonMouse
                         anchors.fill: parent
-                        anchors.rightMargin: 2
-                        radius: 4
-                        color: StyleTokens.transparent
-                        border.color: StyleTokens.textSecondary
-                        border.width: 1
-
-                        Rectangle {
-                            anchors.left: parent.left
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            anchors.margins: 2
-                            radius: 2
-                            width: (parent.width - 4) * (batteryCapacity / 100.0)
-                            color: {
-                                if (batteryCapacity <= 10) return StyleTokens.danger;
-                                if (batteryCapacity <= 20) return StyleTokens.warning;
-                                return StyleTokens.success;
-                            }
-
-                            Behavior on width {
-                                NumberAnimation {
-                                    duration: 300
-                                    easing.type: Easing.OutCubic
-                                }
+                        hoverEnabled: true
+                        onClicked: {
+                            if (controlCenter.shellRootController) {
+                                controlCenter.shellRootController.settingsWindowOpen = !controlCenter.shellRootController.settingsWindowOpen;
                             }
                         }
                     }
+                }
 
-                    Rectangle {
-                        width: 2
-                        height: 6
-                        radius: 1
-                        color: StyleTokens.textSecondary
-                        anchors.right: parent.right
+                Row {
+                    spacing: 5
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        text: controlCenter.chargingIconGlyph
+                        color: StyleTokens.white
+                        font.pixelSize: 13
+                        font.family: iconFontFamily
+                        visible: isCharging
                         anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        text: batteryCapacity + "%"
+                        color: StyleTokens.white
+                        font.pixelSize: 13
+                        font.family: textFontFamily
+                        font.weight: Font.DemiBold
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Item {
+                        width: 28
+                        height: 14
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.rightMargin: 2
+                            radius: 4
+                            color: StyleTokens.transparent
+                            border.color: StyleTokens.textSecondary
+                            border.width: 1
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+                                anchors.margins: 2
+                                radius: 2
+                                width: (parent.width - 4) * (batteryCapacity / 100.0)
+                                color: {
+                                    if (batteryCapacity <= 10) return StyleTokens.danger;
+                                    if (batteryCapacity <= 20) return StyleTokens.warning;
+                                    return StyleTokens.success;
+                                }
+
+                                Behavior on width {
+                                    NumberAnimation {
+                                        duration: 300
+                                        easing.type: Easing.OutCubic
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: 2
+                            height: 6
+                            radius: 1
+                            color: StyleTokens.textSecondary
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                 }
             }
