@@ -79,9 +79,16 @@ hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 
 --hyprlauncher 
+-- hl.bind(
+--     "SUPER + SUPER_L",
+--     hl.dsp.exec_cmd("fuzzel --config=" .. os.getenv("HOME") .. "/.config/fuzzel/colors.ini"),
+--     { release = true }
+-- )
 hl.bind(
     "SUPER + SUPER_L",
-    hl.dsp.exec_cmd("fuzzel --config=" .. os.getenv("HOME") .. "/.config/fuzzel/colors.ini"),
+    hl.dsp.exec_cmd(
+        "qs ipc -p " .. os.getenv("HOME") .. "/.local/src/HyprDots/tide-island call island toggleLauncher"
+    ),
     { release = true }
 )
 
@@ -118,8 +125,13 @@ end)
 
 
 --cliphist 
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-fuzzel-img"))
-
+-- hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/hypr/cliphist-fuzzel-img"))
+hl.bind(
+    mainMod .. " + V",
+    hl.dsp.exec_cmd(
+        "qs ipc -p " .. os.getenv("HOME") .. "/.local/src/HyprDots/tide-island call island toggleClipboard"
+    )
+)
 
 --hyprpicker
 hl.bind(mainMod .. " + CTRL + V",hl.dsp.exec_cmd("hyprpicker -a"))
@@ -166,9 +178,19 @@ end)
 
 
 --TIDE-ISLAND-OVERVIEW
-hl.bind("SUPER + TAB",hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle"))
+hl.bind(
+    "SUPER + TAB",
+    hl.dsp.exec_cmd(
+        "qs ipc -p " .. os.getenv("HOME") .. "/.local/src/HyprDots/tide-island call overview toggle"
+    )
+)
 
-hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc -p /usr/share/tide-island call island toggleControlCenter"))
+hl.bind(
+    "SUPER + A",
+    hl.dsp.exec_cmd(
+        "qs ipc -p " .. os.getenv("HOME") .. "/.local/src/HyprDots/tide-island call island toggleControlCenter"
+    )
+)
 
 -- btop
 hl.bind("CTRL + SHIFT + code:9",
