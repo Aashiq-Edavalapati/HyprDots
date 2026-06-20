@@ -95,6 +95,14 @@ PanelWindow {
 
         Region {
             intersection: Intersection.Combine
+            x: Math.floor(topRightTray.x)
+            y: Math.floor(topRightTray.y)
+            width: topRightTray.visible ? Math.ceil(topRightTray.width) : 0
+            height: topRightTray.visible ? Math.ceil(topRightTray.height) : 0
+        }
+
+        Region {
+            intersection: Intersection.Combine
             x: Math.floor(topLeftComponent.x)
             y: Math.floor(topLeftComponent.y)
             width: topLeftComponent.visible ? Math.ceil(topLeftComponent.width) : 0
@@ -1868,6 +1876,17 @@ PanelWindow {
             textFontFamily: root.textFontFamily
             iconFontFamily: root.iconFontFamily
             maxAllowedWidth: (root.width - mainCapsule.width) / 2 - 32
+        }
+
+        TopRightTray {
+            id: topRightTray
+            anchors.right: topRightComponent.left
+            anchors.rightMargin: 12
+            anchors.top: parent.top
+            anchors.topMargin: 4
+            window: root
+            textFontFamily: root.textFontFamily
+            iconFontFamily: root.iconFontFamily
         }
     }
 
