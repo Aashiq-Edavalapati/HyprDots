@@ -92,6 +92,14 @@ PanelWindow {
             width: topRightComponent.visible ? Math.ceil(topRightComponent.width) : 0
             height: topRightComponent.visible ? Math.ceil(topRightComponent.height) : 0
         }
+
+        Region {
+            intersection: Intersection.Combine
+            x: Math.floor(topLeftComponent.x)
+            y: Math.floor(topLeftComponent.y)
+            width: topLeftComponent.visible ? Math.ceil(topLeftComponent.width) : 0
+            height: topLeftComponent.visible ? Math.ceil(topLeftComponent.height) : 0
+        }
     }
     implicitHeight: root.overviewVisible
         ? Math.max(
@@ -100,7 +108,7 @@ PanelWindow {
             Math.ceil(root.controlCenterWindowHeight)
         )
         : Math.max(Math.ceil(4 + root.connectivityDetailHeight + 12), Math.ceil(root.controlCenterWindowHeight))
-    exclusiveZone: 45
+    exclusiveZone: 38
     aboveWindows: true
     focusable: root.monitorFocused && (root.overviewVisible || root.connectivityPromptActive || islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard")
     WlrLayershell.layer: WlrLayer.Top
@@ -697,7 +705,7 @@ PanelWindow {
         }
 
         function normalizeRestingState(nextState) {
-            if (nextState === "lyrics") return "lyrics";
+            if (nextState === "lyrics") return "normal";
             if (nextState === "custom" && hasCustomLeftItems) return "custom";
             return "normal";
         }
@@ -828,7 +836,8 @@ PanelWindow {
 
         function advanceSideSwipeProgress(currentProgress, deltaX) {
             const minProgress = hasCustomLeftItems ? -1 : 0;
-            let nextProgress = Math.max(minProgress, Math.min(1, currentProgress));
+            const maxProgress = 0;
+            let nextProgress = Math.max(minProgress, Math.min(maxProgress, currentProgress));
             let remainingDelta = deltaX;
 
             if (remainingDelta > 0) {
@@ -838,26 +847,14 @@ PanelWindow {
                     nextProgress += progressToCenter;
                     remainingDelta -= progressToCenter * leftDistance;
                 }
-
-                if (remainingDelta > 0 && nextProgress < 1) {
-                    const rightDistance = Math.max(1, sideSwipeDragDistanceForDirection("right"));
-                    nextProgress = Math.min(1, nextProgress + remainingDelta / rightDistance);
-                }
             } else if (remainingDelta < 0) {
-                if (nextProgress > 0) {
-                    const rightDistance = Math.max(1, sideSwipeDragDistanceForDirection("right"));
-                    const progressToCenter = Math.min(nextProgress, -remainingDelta / rightDistance);
-                    nextProgress -= progressToCenter;
-                    remainingDelta += progressToCenter * rightDistance;
-                }
-
                 if (remainingDelta < 0 && nextProgress > minProgress) {
                     const leftDistance = Math.max(1, sideSwipeDragDistanceForDirection("left"));
                     nextProgress = Math.max(minProgress, nextProgress + remainingDelta / leftDistance);
                 }
             }
 
-            return Math.max(minProgress, Math.min(1, nextProgress));
+            return Math.max(minProgress, Math.min(maxProgress, nextProgress));
         }
 
         function resolveSideSwipeSettle(startProgress, finalProgress) {
@@ -865,22 +862,12 @@ PanelWindow {
             let settleProgress = sideSwipeRestProgressForProgress(startProgress);
             let settleWidth = sideSwipeRestWidthForProgress(startProgress);
 
-            if (finalProgress >= 0.56) {
-                settleAction = "lyrics";
-                settleProgress = 1;
-                settleWidth = lyricsCapsuleWidth;
-            } else if (hasCustomLeftItems && finalProgress <= -0.56) {
+            if (hasCustomLeftItems && finalProgress <= -0.56) {
                 settleAction = "custom";
                 settleProgress = -1;
                 settleWidth = customCapsuleWidth;
             } else if (startProgress <= -0.5) {
                 if (finalProgress >= -0.44) {
-                    settleAction = "time";
-                    settleProgress = 0;
-                    settleWidth = 140;
-                }
-            } else if (startProgress >= 0.5) {
-                if (finalProgress <= 0.44) {
                     settleAction = "time";
                     settleProgress = 0;
                     settleWidth = 140;
@@ -1222,7 +1209,7 @@ PanelWindow {
                         ? Math.max(56, Math.min(68, notificationLoader.item.preferredHeight))
                         : 56;
                 default:
-                    return 38;
+                    return 35;
                 }
             }
             readonly property real targetRadius: {
@@ -1868,6 +1855,19 @@ PanelWindow {
             musicPlaying: islandContainer.activePlayer && islandContainer.activePlayer.playbackState === MprisPlaybackState.Playing
             iconFontFamily: root.iconFontFamily
             textFontFamily: root.textFontFamily
+        }
+
+        TopLeftLyrics {
+            id: topLeftComponent
+            anchors.left: parent.left
+            anchors.leftMargin: 16
+            anchors.top: parent.top
+            anchors.topMargin: 4
+            lyricText: islandContainer.lyricsDisplayText
+            musicPlaying: islandContainer.activePlayer && islandContainer.activePlayer.playbackState === MprisPlaybackState.Playing
+            textFontFamily: root.textFontFamily
+            iconFontFamily: root.iconFontFamily
+            maxAllowedWidth: (root.width - mainCapsule.width) / 2 - 32
         }
     }
 
