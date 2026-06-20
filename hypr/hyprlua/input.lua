@@ -11,7 +11,7 @@ hl.gesture({
   fingers = 4,
   direction = "up",
   action = function()
-    hl.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle")
+    hl.exec_cmd("qs ipc -p " .. os.getenv("HOME") .. "/.local/src/HyprDots/tide-island call overview toggle")
   end
 })
 
@@ -19,7 +19,7 @@ hl.gesture({
   fingers = 4,
   direction = "down",
   action = function()
-    hl.exec_cmd("qs ipc -p /usr/share/tide-island call overview toggle")
+    hl.exec_cmd("qs ipc -p " .. os.getenv("HOME") .. "/.local/src/HyprDots/tide-island call overview toggle")
   end
 })
 
