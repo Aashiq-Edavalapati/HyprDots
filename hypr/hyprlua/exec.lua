@@ -1,11 +1,6 @@
 hl.on("hyprland.start", function () 
   hl.exec_cmd("waypaper --restore")
   hl.exec_cmd("syncthing --no-browser")
-  hl.exec_cmd("wl-paste --type text --watch cliphist store # Stores only text data")
-  hl.exec_cmd("wl-paste --type image --watch cliphist store # Stores only text data")
-  -- hl.exec_cmd("hyprctl setcursor Moga 24")
-  -- hl.exec_cmd("qs")
-  -- hl.exec_cmd("systemctl --user start dunst")
-  hl.exec_cmd("tide-island")
-  -- hl.exec_cmd("win11-clipboard-history")
+  hl.exec_cmd("quickshell -p ~/.local/src/HyprDots/tide-island/")
+
 end)
