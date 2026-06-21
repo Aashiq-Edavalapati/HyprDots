@@ -71,7 +71,7 @@ def parse_window_rules(path):
         with open(path, 'r') as f:
             content = f.read()
     except Exception as e:
-        print(f"Error reading windowrule.lua: {e}", file=sys.stderr)
+        print(f"Error reading gui.lua: {e}", file=sys.stderr)
         return []
         
     rules = []
@@ -168,7 +168,7 @@ def main():
         
     general_path = os.path.join(hyprlua_dir, "general.lua")
     decoration_path = os.path.join(hyprlua_dir, "decoration.lua")
-    windowrule_path = os.path.join(hyprlua_dir, "windowrule.lua")
+    windowrule_path = os.path.join(hyprlua_dir, "gui.lua")
     
     if args.get_window_rules:
         rules = parse_window_rules(windowrule_path)
