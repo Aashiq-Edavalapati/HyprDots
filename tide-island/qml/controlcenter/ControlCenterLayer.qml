@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Io
 import IslandBackend
@@ -71,6 +72,7 @@ Item {
     property string batteryModeError: ""
     property string batteryModeLastCommandOutput: ""
     property int batteryModeRefreshPollsRemaining: 0
+    property bool caffeineMode: false
 
     property string wifiLocalInfoMessage: ""
     property string wifiLocalError: ""
@@ -726,6 +728,24 @@ Item {
         bluetoothAdapter.enabled = !bluetoothAdapter.enabled;
     }
 
+    function toggleCaffeineMode() {
+        if (caffeineMode) {
+            Quickshell.execDetached(["sh", "-c", "systemctl --user start hypridle || hypridle"]);
+            caffeineMode = false;
+        } else {
+            Quickshell.execDetached(["sh", "-c", "systemctl --user stop hypridle || true; pkill -x hypridle || true"]);
+            caffeineMode = true;
+        }
+        caffeineCheckTimer.restart();
+    }
+
+    Timer {
+        id: caffeineCheckTimer
+        interval: 500
+        repeat: false
+        onTriggered: checkHypridleProcess.running = true
+    }
+
     function toggleBluetoothScan() {
         if (!bluetoothAdapter) {
             bluetoothError = "No Bluetooth adapter is available.";
@@ -798,6 +818,7 @@ Item {
             sliderIntroTimer.restart();
             refreshBatteryModeState();
             requestWifiStateRefresh();
+            checkHypridleProcess.running = true;
             if (wifiPanelOpen && wifiSupported && wifiEnabled)
                 requestWifiListRefresh(true);
         } else {
@@ -816,6 +837,7 @@ Item {
         SystemServices.requestBrightness();
         SystemServices.requestVolume();
         refreshBatteryModeState();
+        checkHypridleProcess.running = true;
     }
 
     Behavior on opacity {
@@ -934,6 +956,15 @@ Item {
         onExited: (exitCode) => {
             const success = (exitCode === 0);
             controlCenter.finishBatteryModeApply(success, exitCode, "", success ? "" : "Failed to set profile.");
+        }
+    }
+
+    Process {
+        id: checkHypridleProcess
+        command: ["pgrep", "-x", "hypridle"]
+        running: false
+        onExited: (exitCode) => {
+            controlCenter.caffeineMode = (exitCode !== 0);
         }
     }
 
@@ -1141,6 +1172,42 @@ Item {
                             if (controlCenter.shellRootController) {
                                 controlCenter.shellRootController.toggleWallpapers();
                             }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    id: caffeineButton
+                    width: 24
+                    height: 24
+                    radius: 12
+                    color: caffeineButtonMouse.containsMouse ? "#26ffffff" : StyleTokens.transparent
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Behavior on color {
+                        ColorAnimation { duration: 150 }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\uf0f4" // Coffee cup icon
+                        color: controlCenter.caffeineMode 
+                            ? "#ff9f0a" 
+                            : (caffeineButtonMouse.containsMouse ? "#ffffff" : StyleTokens.textSecondary)
+                        font.pixelSize: 14
+                        font.family: iconFontFamily
+
+                        Behavior on color {
+                            ColorAnimation { duration: 150 }
+                        }
+                    }
+
+                    MouseArea {
+                        id: caffeineButtonMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            controlCenter.toggleCaffeineMode();
                         }
                     }
                 }
