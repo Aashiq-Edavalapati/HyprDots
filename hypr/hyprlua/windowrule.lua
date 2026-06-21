@@ -1,16 +1,10 @@
 local mat = require("colors")
 
 hl.window_rule({
-
     match = {
-
         class = "waypaper"
-
     },
-
     float = true
- 
-
 })
 
 hl.window_rule{
@@ -20,5 +14,15 @@ hl.window_rule{
     float = true,
     center = true,
     persistent_size = true
-
 }
+
+
+hl.window_rule({
+    match = {
+        class = "kitty",
+        title = "btop"
+    },
+    float = true,
+    size = { 1000, 750 },
+    center = true
+})
