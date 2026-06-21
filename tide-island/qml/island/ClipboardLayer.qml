@@ -16,11 +16,12 @@ FocusScope {
     signal closeRequested()
 
     anchors.fill: parent
-    visible: opacity > 0
+    visible: opacity > 0 || clipboardOpacityAnim.running
     opacity: showCondition ? 1 : 0
 
     Behavior on opacity {
-        NumberAnimation {
+        OpacityAnimator {
+            id: clipboardOpacityAnim
             duration: 180
             easing.type: Easing.InOutQuad
         }
@@ -636,12 +637,16 @@ FocusScope {
         id: confirmModalOverlay
         anchors.fill: parent
         color: Qt.rgba(0, 0, 0, 0.6)
-        visible: opacity > 0
+        visible: opacity > 0 || clipModalOpacityAnim.running
         opacity: root.showConfirmModal ? 1 : 0
         z: 100
 
         Behavior on opacity {
-            NumberAnimation { duration: 180; easing.type: Easing.InOutQuad }
+            OpacityAnimator {
+                id: clipModalOpacityAnim
+                duration: 180
+                easing.type: Easing.InOutQuad
+            }
         }
 
         MouseArea {

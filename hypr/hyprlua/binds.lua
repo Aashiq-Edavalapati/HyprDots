@@ -29,6 +29,10 @@ hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-")
 -- 1. Using keyboard shortcuts + mouse movement
 hl.bind(mainMod .. "+ Z", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. "+ X",hl.dsp.window.resize(), {mouse = true})
+-- 2. Using mouse buttons (while holding the modifier key)
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
+hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
 --pseudmode
 hl.bind("SUPER + P", hl.dsp.window.pseudo())
 
@@ -73,10 +77,9 @@ hl.bind(mainMod .. "+SHIFT + right",hl.dsp.window.move({direction = "right"}))
 
 
 --fullscreen a window
-hl.bind(mainMod .. "+SHIFT+F",hl.dsp.window.fullscreen({mode = "fullscreen"}))
-hl.bind(mainMod .. "+SHIFT+D",hl.dsp.window.fullscreen({mode = "maximized"}))
-
-
+hl.bind(mainMod .. "+F",hl.dsp.window.fullscreen({mode = "fullscreen"}))
+-- maximize a window
+hl.bind(mainMod .. "+D",hl.dsp.window.fullscreen({mode = "maximized"}))
 
 hl.bind(
     "SUPER + SUPER_L",
@@ -85,6 +88,7 @@ hl.bind(
     ),
     { release = true }
 )
+
 
 --application binds
 -- hl.bind(mainMod .. " +ALT+E", hl.dsp.exec_cmd("kitty yazi"))
@@ -127,7 +131,7 @@ hl.bind(
 )
 
 --hyprpicker
-hl.bind(mainMod .. " + CTRL + V",hl.dsp.exec_cmd("hyprpicker -a"))
+hl.bind(mainMod .. " +SHIFT + C",hl.dsp.exec_cmd("hyprpicker -a"))
 
 --hyprshot
 hl.bind(mainMod .. " +SHIFT + S",hl.dsp.exec_cmd("hyprshot -z -m region"))
@@ -155,19 +159,19 @@ hl.bind(mainMod .. " +SHIFT + W",hl.dsp.exec_cmd("hyprshot -z -m window"))
 -- end)
 
 
-hl.bind("SUPER + G", function()
-    local result = os.execute("pgrep -x wf-recorder")
+-- hl.bind("SUPER + G", function()
+--     local result = os.execute("pgrep -x wf-recorder")
  
 
-    if result ~= nil then
-        hl.exec_cmd("pkill -INT wf-recorder")
-        hl.notification.create({text = "Stopped wf-recorder", time="5000", icon = 2})
-        return
-    end
+--     if result ~= nil then
+--         hl.exec_cmd("pkill -INT wf-recorder")
+--         hl.notification.create({text = "Stopped wf-recorder", time="5000", icon = 2})
+--         return
+--     end
 
-    hl.exec_cmd("wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor")
-    hl.notification.create({text = "Started recording", time = "5000", icon = 1})
-end)
+--     hl.exec_cmd("wf-recorder -g \"$(slurp)\" -f ~/Videos/Recordings/recording-$(date +%F_%H-%M).mkv --audio=alsa_output.pci-0000_00_1f.3.analog-stereo.monitor")
+--     hl.notification.create({text = "Started recording", time = "5000", icon = 1})
+-- end)
 
 
 --TIDE-ISLAND-OVERVIEW
@@ -190,3 +194,5 @@ hl.bind("CTRL + SHIFT + code:9",
     hl.dsp.exec_cmd("pgrep -x btop && pkill -x btop || kitty --title btop btop")
 )
 
+-- Lock screen
+hl.bind("SUPER + L", hl.dsp.exec_cmd("~/.local/share/quickshell-lockscreen/lock.sh"))
