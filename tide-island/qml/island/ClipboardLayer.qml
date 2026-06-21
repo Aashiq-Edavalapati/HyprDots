@@ -93,25 +93,10 @@ FocusScope {
 
     onSelectedIndexChanged: {
         if (filteredClips.length === 0) return;
-        
-        let yPos = 0;
-        let selectedHeight = 52;
-        const spacing = 8;
-        
-        for (let i = 0; i < selectedIndex; i++) {
-            const clip = filteredClips[i];
-            yPos += (clip.is_image ? 176 : 52) + spacing;
+        if (listView.currentIndex !== selectedIndex) {
+            listView.currentIndex = selectedIndex;
         }
-        
-        if (selectedIndex < filteredClips.length) {
-            selectedHeight = filteredClips[selectedIndex].is_image ? 176 : 52;
-        }
-        
-        if (yPos < flickable.contentY) {
-            flickable.contentY = yPos;
-        } else if (yPos + selectedHeight > flickable.contentY + flickable.height) {
-            flickable.contentY = yPos + selectedHeight - flickable.height;
-        }
+        listView.positionViewAtIndex(selectedIndex, ListView.Contain);
     }
 
     function copyClip(clip) {
@@ -414,192 +399,185 @@ FocusScope {
             }
         }
 
-        // Flickable scroll area for clipboard items
-        Flickable {
-            id: flickable
+        // ListView scroll area for clipboard items
+        ListView {
+            id: listView
             width: parent.width
             height: parent.height - searchRow.height - tabBar.height - 32
-            contentWidth: width
-            contentHeight: listColumn.height
             clip: true
             boundsBehavior: Flickable.StopAtBounds
+            spacing: 8
+            currentIndex: root.selectedIndex
 
-            Column {
-                id: listColumn
-                width: parent.width
-                spacing: 8
+            onCurrentIndexChanged: {
+                root.selectedIndex = currentIndex;
+            }
 
-                Repeater {
-                    model: root.filteredClips
+            model: root.filteredClips
 
-                    delegate: Item {
-                        id: clipItem
-                        required property var modelData
-                        required property int index
+            delegate: Item {
+                id: clipItem
+                width: listView.width
+                height: modelData.is_image ? 176 : 52
 
-                        width: listColumn.width
-                        height: modelData.is_image ? 176 : 52
+                readonly property bool isSelected: index === root.selectedIndex
 
-                        readonly property bool isSelected: index === root.selectedIndex
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 12
+                    color: isSelected 
+                        ? Qt.rgba(1, 1, 1, 0.08) 
+                        : (itemMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.03) : "transparent")
+                    border.width: 0
+                    
+                    Behavior on color { ColorAnimation { duration: 100 } }
+
+                    // Header row (contains text preview, pin button, and delete button)
+                    Item {
+                        id: headerItem
+                        width: parent.width
+                        height: 52
+                        anchors.top: parent.top
+
+                        Row {
+                            anchors.fill: parent
+                            anchors.leftMargin: 16
+                            anchors.rightMargin: 8
+                            spacing: 12
+
+                            // Clip Text Preview
+                            Text {
+                                text: modelData.preview
+                                color: isSelected ? "#ffffff" : Qt.rgba(1, 1, 1, 0.65)
+                                font.family: root.textFontFamily
+                                font.pixelSize: 13
+                                font.weight: isSelected ? Font.Medium : Font.Normal
+                                width: parent.width - deleteButton.width - pinButton.width - 36
+                                elide: Text.ElideRight
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            // Pin option
+                            Rectangle {
+                                id: pinButton
+                                width: 36
+                                height: 36
+                                radius: 8
+                                color: pinMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
+                                anchors.verticalCenter: parent.verticalCenter
+                                
+                                readonly property bool isPinnedItem: root.currentTab === "pinned" || !!modelData.is_pinned
+
+                                Text {
+                                    text: ""
+                                    font.family: root.iconFontFamily
+                                    font.pixelSize: 14
+                                    color: pinButton.isPinnedItem 
+                                        ? (pinMouseArea.containsMouse ? "#38bdf8" : "#0ea5e9") 
+                                        : (pinMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.6) : Qt.rgba(1, 1, 1, 0.3))
+                                    anchors.centerIn: parent
+                                }
+
+                                MouseArea {
+                                    id: pinMouseArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onClicked: {
+                                        root.togglePin(modelData);
+                                    }
+                                }
+                            }
+
+                            // Delete option on the right end
+                            Rectangle {
+                                id: deleteButton
+                                width: 36
+                                height: 36
+                                radius: 8
+                                color: deleteMouseArea.containsMouse ? Qt.rgba(1, 0.2, 0.2, 0.15) : "transparent"
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    text: ""
+                                    font.family: root.iconFontFamily
+                                    font.pixelSize: 14
+                                    color: deleteMouseArea.containsMouse ? "#ff5555" : Qt.rgba(1, 1, 1, 0.3)
+                                    anchors.centerIn: parent
+                                }
+
+                                MouseArea {
+                                    id: deleteMouseArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onClicked: {
+                                        root.deleteClip(modelData, index);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Big image preview below the header
+                    Rectangle {
+                        id: bigImagePreview
+                        anchors.top: headerItem.bottom
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 12
+                        anchors.left: parent.left
+                        anchors.leftMargin: 16
+                        anchors.right: parent.right
+                        anchors.rightMargin: 16
+                        radius: 8
+                        color: "#0a0a0c"
+                        border.color: isSelected ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(255, 255, 255, 0.05)
+                        border.width: 1
+                        clip: true
+                        visible: modelData.is_image
+
+                        // 1. Blurred background representation for color-matched ambient fallback
+                        Image {
+                            anchors.fill: parent
+                            source: modelData.is_image ? modelData.thumbnail : ""
+                            fillMode: Image.PreserveAspectCrop
+                            asynchronous: true
+                            opacity: 0.3
+                            sourceSize.width: 100
+                            sourceSize.height: 50
+                        }
+
+                        // 2. Foreground full image preview preserving aspect ratio
+                        Image {
+                            anchors.fill: parent
+                            anchors.margins: 4
+                            source: modelData.is_image ? modelData.thumbnail : ""
+                            fillMode: Image.PreserveAspectFit
+                            asynchronous: true
+                            sourceSize.width: 600
+                            sourceSize.height: 300
+                        }
 
                         Rectangle {
                             anchors.fill: parent
-                            radius: 12
-                            color: isSelected 
-                                ? Qt.rgba(1, 1, 1, 0.08) 
-                                : (itemMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.03) : "transparent")
-                            border.width: 0
-                            
-                            Behavior on color { ColorAnimation { duration: 100 } }
-
-                            // Header row (contains text preview, pin button, and delete button)
-                            Item {
-                                id: headerItem
-                                width: parent.width
-                                height: 52
-                                anchors.top: parent.top
-
-                                Row {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 16
-                                    anchors.rightMargin: 8
-                                    spacing: 12
-
-                                    // Clip Text Preview
-                                    Text {
-                                        text: modelData.preview
-                                        color: isSelected ? "#ffffff" : Qt.rgba(1, 1, 1, 0.65)
-                                        font.family: root.textFontFamily
-                                        font.pixelSize: 13
-                                        font.weight: isSelected ? Font.Medium : Font.Normal
-                                        width: parent.width - deleteButton.width - pinButton.width - 36
-                                        elide: Text.ElideRight
-                                        anchors.verticalCenter: parent.verticalCenter
-                                    }
-
-                                    // Pin option
-                                    Rectangle {
-                                        id: pinButton
-                                        width: 36
-                                        height: 36
-                                        radius: 8
-                                        color: pinMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        
-                                        readonly property bool isPinnedItem: root.currentTab === "pinned" || !!modelData.is_pinned
-
-                                        Text {
-                                            text: ""
-                                            font.family: root.iconFontFamily
-                                            font.pixelSize: 14
-                                            color: pinButton.isPinnedItem 
-                                                ? (pinMouseArea.containsMouse ? "#38bdf8" : "#0ea5e9") 
-                                                : (pinMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.6) : Qt.rgba(1, 1, 1, 0.3))
-                                            anchors.centerIn: parent
-                                        }
-
-                                        MouseArea {
-                                            id: pinMouseArea
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-                                            onClicked: {
-                                                root.togglePin(modelData);
-                                            }
-                                        }
-                                    }
-
-                                    // Delete option on the right end
-                                    Rectangle {
-                                        id: deleteButton
-                                        width: 36
-                                        height: 36
-                                        radius: 8
-                                        color: deleteMouseArea.containsMouse ? Qt.rgba(1, 0.2, 0.2, 0.15) : "transparent"
-                                        anchors.verticalCenter: parent.verticalCenter
-
-                                        Text {
-                                            text: ""
-                                            font.family: root.iconFontFamily
-                                            font.pixelSize: 14
-                                            color: deleteMouseArea.containsMouse ? "#ff5555" : Qt.rgba(1, 1, 1, 0.3)
-                                            anchors.centerIn: parent
-                                        }
-
-                                        MouseArea {
-                                            id: deleteMouseArea
-                                            anchors.fill: parent
-                                            hoverEnabled: true
-                                            onClicked: {
-                                                root.deleteClip(modelData, index);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Big image preview below the header
-                            Rectangle {
-                                id: bigImagePreview
-                                anchors.top: headerItem.bottom
-                                anchors.bottom: parent.bottom
-                                anchors.bottomMargin: 12
-                                anchors.left: parent.left
-                                anchors.leftMargin: 16
-                                anchors.right: parent.right
-                                anchors.rightMargin: 16
-                                radius: 8
-                                color: "#0a0a0c"
-                                border.color: isSelected ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(255, 255, 255, 0.05)
-                                border.width: 1
-                                clip: true
-                                visible: modelData.is_image
-
-                                // 1. Blurred background representation for color-matched ambient fallback
-                                Image {
-                                    anchors.fill: parent
-                                    source: modelData.is_image ? modelData.thumbnail : ""
-                                    fillMode: Image.PreserveAspectCrop
-                                    asynchronous: true
-                                    opacity: 0.3
-                                    sourceSize.width: 100
-                                    sourceSize.height: 50
-                                }
-
-                                // 2. Foreground full image preview preserving aspect ratio
-                                Image {
-                                    anchors.fill: parent
-                                    anchors.margins: 4
-                                    source: modelData.is_image ? modelData.thumbnail : ""
-                                    fillMode: Image.PreserveAspectFit
-                                    asynchronous: true
-                                    sourceSize.width: 600
-                                    sourceSize.height: 300
-                                }
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    gradient: Gradient {
-                                        GradientStop { position: 0.0; color: "transparent" }
-                                        GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0.25) }
-                                    }
-                                }
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: "transparent" }
+                                GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0.25) }
                             }
                         }
+                    }
+                }
 
-                        MouseArea {
-                            id: itemMouseArea
-                            anchors.fill: parent
-                            anchors.rightMargin: 96 // Avoid copy on button clicks
-                            hoverEnabled: true
-                            onContainsMouseChanged: {
-                                if (containsMouse) {
-                                    root.selectedIndex = index;
-                                }
-                            }
-                            onClicked: {
-                                root.copyClip(modelData);
-                            }
+                MouseArea {
+                    id: itemMouseArea
+                    anchors.fill: parent
+                    anchors.rightMargin: 96 // Avoid copy on button clicks
+                    hoverEnabled: true
+                    onContainsMouseChanged: {
+                        if (containsMouse) {
+                            root.selectedIndex = index;
                         }
+                    }
+                    onClicked: {
+                        root.copyClip(modelData);
                     }
                 }
             }

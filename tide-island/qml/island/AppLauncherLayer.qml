@@ -80,14 +80,10 @@ FocusScope {
 
     onSelectedIndexChanged: {
         if (filteredApps.length === 0) return;
-        const row = Math.floor(selectedIndex / columns);
-        const yPos = row * (itemHeight + 16);
-        
-        if (yPos < flickable.contentY) {
-            flickable.contentY = yPos;
-        } else if (yPos + itemHeight > flickable.contentY + flickable.height) {
-            flickable.contentY = yPos + itemHeight - flickable.height;
+        if (gridView.currentIndex !== selectedIndex) {
+            gridView.currentIndex = selectedIndex;
         }
+        gridView.positionViewAtIndex(selectedIndex, GridView.Contain);
     }
 
     function launchApp(app) {
@@ -227,105 +223,98 @@ FocusScope {
             }
         }
 
-        // Flickable Area for Grid (Scrollbars Hidden)
-        Flickable {
-            id: flickable
+        GridView {
+            id: gridView
             width: parent.width
             height: parent.height - searchBarContainer.height - 16
-            contentWidth: width
-            contentHeight: grid.height
+            cellWidth: width / root.columns
+            cellHeight: root.itemHeight + 16
             clip: true
             boundsBehavior: Flickable.StopAtBounds
+            currentIndex: root.selectedIndex
 
-            // Grid View of Applications
-            Grid {
-                id: grid
-                width: parent.width
-                columns: root.columns
-                spacing: 16
+            onCurrentIndexChanged: {
+                root.selectedIndex = currentIndex;
+            }
 
-                Repeater {
-                    model: root.filteredApps
+            model: root.filteredApps
 
-                    delegate: Item {
-                        id: appItem
-                        required property var modelData
-                        required property int index
+            delegate: Item {
+                id: appItem
+                width: gridView.cellWidth
+                height: gridView.cellHeight
 
-                        width: root.itemWidth
-                        height: root.itemHeight
+                readonly property bool isSelected: index === root.selectedIndex
 
-                        readonly property bool isSelected: index === root.selectedIndex
+                // App Card (Clean background, NO BORDER)
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    radius: 12
+                    color: isSelected 
+                        ? Qt.rgba(1, 1, 1, 0.08) 
+                        : (itemMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.03) : "transparent")
+                    border.width: 0
+                    
+                    scale: isSelected ? 1.05 : 1.0
+                    
+                    Behavior on color { ColorAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                    Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
 
-                        // App Card (Clean background, NO BORDER)
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 8
+
+                        // Rounded Container for App Icon
                         Rectangle {
-                            anchors.fill: parent
-                            radius: 12
-                            color: isSelected 
-                                ? Qt.rgba(1, 1, 1, 0.08) 
-                                : (itemMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.03) : "transparent")
-                            border.width: 0 // NO BORDER AT ALL
-                            
-                            scale: isSelected ? 1.05 : 1.0
-                            
-                            Behavior on color { ColorAnimation { duration: 150; easing.type: Easing.OutQuad } }
-                            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                            width: 40
+                            height: 40
+                            radius: 10
+                            color: "transparent"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            clip: true
 
-                            Column {
-                                anchors.centerIn: parent
-                                spacing: 8
-
-                                // Rounded Container for App Icon
-                                Rectangle {
-                                    width: 40
-                                    height: 40
-                                    radius: 10
-                                    color: "transparent"
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    clip: true
-
-                                    Image {
-                                        id: appIconImage
-                                        anchors.fill: parent
-                                        source: Quickshell.iconPath(modelData.icon, "application-x-executable")
-                                        smooth: true
-                                        mipmap: true
-                                        
-                                        onStatusChanged: {
-                                            if (status === Image.Error) {
-                                                source = "image://icon/application-x-executable";
-                                            }
-                                        }
+                            Image {
+                                id: appIconImage
+                                anchors.fill: parent
+                                source: Quickshell.iconPath(modelData.icon, "application-x-executable")
+                                smooth: true
+                                mipmap: true
+                                sourceSize: Qt.size(40, 40)
+                                
+                                onStatusChanged: {
+                                    if (status === Image.Error) {
+                                        source = "image://icon/application-x-executable";
                                     }
                                 }
-
-                                Text {
-                                    text: modelData.name
-                                    color: isSelected ? "#ffffff" : Qt.rgba(1, 1, 1, 0.65)
-                                    font.family: root.textFontFamily
-                                    font.pixelSize: 12
-                                    font.weight: isSelected ? Font.DemiBold : Font.Normal
-                                    width: appItem.width - 16
-                                    elide: Text.ElideRight
-                                    horizontalAlignment: Text.AlignHCenter
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                }
                             }
                         }
 
-                        MouseArea {
-                            id: itemMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onContainsMouseChanged: {
-                                if (containsMouse) {
-                                    root.selectedIndex = index;
-                                }
-                            }
-                            onClicked: {
-                                root.launchApp(modelData);
-                            }
+                        Text {
+                            text: modelData.name
+                            color: isSelected ? "#ffffff" : Qt.rgba(1, 1, 1, 0.65)
+                            font.family: root.textFontFamily
+                            font.pixelSize: 12
+                            font.weight: isSelected ? Font.DemiBold : Font.Normal
+                            width: parent.parent.width - 16
+                            elide: Text.ElideRight
+                            horizontalAlignment: Text.AlignHCenter
+                            anchors.horizontalCenter: parent.horizontalCenter
                         }
+                    }
+                }
+
+                MouseArea {
+                    id: itemMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onContainsMouseChanged: {
+                        if (containsMouse) {
+                            root.selectedIndex = index;
+                        }
+                    }
+                    onClicked: {
+                        root.launchApp(modelData);
                     }
                 }
             }

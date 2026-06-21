@@ -76,14 +76,10 @@ FocusScope {
 
     onSelectedIndexChanged: {
         if (filteredEmojis.length === 0) return;
-        const row = Math.floor(selectedIndex / columns);
-        const yPos = row * (itemHeight + 10);
-        
-        if (yPos < flickable.contentY) {
-            flickable.contentY = yPos;
-        } else if (yPos + itemHeight > flickable.contentY + flickable.height) {
-            flickable.contentY = yPos + itemHeight - flickable.height;
+        if (gridView.currentIndex !== selectedIndex) {
+            gridView.currentIndex = selectedIndex;
         }
+        gridView.positionViewAtIndex(selectedIndex, GridView.Contain);
     }
 
     function copyEmoji(emojiStr) {
@@ -288,69 +284,61 @@ FocusScope {
             color: Qt.rgba(1, 1, 1, 0.35)
         }
 
-        // Flickable Area for Grid (Scrollbars Hidden)
-        Flickable {
-            id: flickable
+        GridView {
+            id: gridView
             width: parent.width
             height: parent.height - searchBarContainer.height - (categoryBar.visible ? categoryBar.height : 0) - 46
-            contentWidth: width
-            contentHeight: grid.height
+            cellWidth: width / root.columns
+            cellHeight: root.itemHeight + 10
             clip: true
             boundsBehavior: Flickable.StopAtBounds
+            currentIndex: root.selectedIndex
 
-            // Grid View of Emojis
-            Grid {
-                id: grid
-                width: parent.width
-                columns: root.columns
-                spacing: 10
+            onCurrentIndexChanged: {
+                root.selectedIndex = currentIndex;
+            }
 
-                Repeater {
-                    model: root.filteredEmojis
+            model: root.filteredEmojis
 
-                    delegate: Item {
-                        id: emojiItem
-                        required property var modelData
-                        required property int index
+            delegate: Item {
+                id: emojiItem
+                width: gridView.cellWidth
+                height: gridView.cellHeight
 
-                        width: root.itemWidth
-                        height: root.itemHeight
+                readonly property bool isSelected: index === root.selectedIndex
 
-                        readonly property bool isSelected: index === root.selectedIndex
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    radius: 10
+                    color: isSelected 
+                        ? Qt.rgba(1, 1, 1, 0.08) 
+                        : (emojiMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.03) : "transparent")
+                    border.width: 0
+                    
+                    scale: isSelected ? 1.1 : 1.0
+                    
+                    Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutQuad } }
+                    Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
 
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 10
-                            color: isSelected 
-                                ? Qt.rgba(1, 1, 1, 0.08) 
-                                : (emojiMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.03) : "transparent")
-                            border.width: 0
-                            
-                            scale: isSelected ? 1.1 : 1.0
-                            
-                            Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutQuad } }
-                            Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                    Text {
+                        text: modelData.emoji
+                        font.pixelSize: 22
+                        anchors.centerIn: parent
+                    }
+                }
 
-                            Text {
-                                text: modelData.emoji
-                                font.pixelSize: 22
-                                anchors.centerIn: parent
-                            }
+                MouseArea {
+                    id: emojiMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onContainsMouseChanged: {
+                        if (containsMouse) {
+                            root.selectedIndex = index;
                         }
-
-                        MouseArea {
-                            id: emojiMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onContainsMouseChanged: {
-                                if (containsMouse) {
-                                    root.selectedIndex = index;
-                                }
-                            }
-                            onClicked: {
-                                root.copyEmoji(modelData.emoji);
-                            }
-                        }
+                    }
+                    onClicked: {
+                        root.copyEmoji(modelData.emoji);
                     }
                 }
             }

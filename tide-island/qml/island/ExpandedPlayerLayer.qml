@@ -62,14 +62,15 @@ Item {
         }
     }
 
-    Timer {
-        interval: 64
-        repeat: true
+    NumberAnimation {
+        id: visualizerAnim
+        target: root
+        property: "visualizerPhase"
+        from: 0
+        to: Math.PI * 2
+        duration: 2200
+        loops: Animation.Infinite
         running: showCondition && isPlaying
-        onTriggered: {
-            visualizerPhase += 0.18;
-            if (visualizerPhase > Math.PI * 2) visualizerPhase -= Math.PI * 2;
-        }
     }
 
     Column {
@@ -152,8 +153,9 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
 
                             Behavior on height {
+                                enabled: !root.isPlaying
                                 NumberAnimation {
-                                    duration: isPlaying ? 120 : 260
+                                    duration: 260
                                     easing.type: Easing.InOutQuad
                                 }
                             }

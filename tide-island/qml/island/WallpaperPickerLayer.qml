@@ -70,14 +70,10 @@ FocusScope {
 
     onSelectedIndexChanged: {
         if (filteredWallpapers.length === 0) return;
-        const row = Math.floor(selectedIndex / columns);
-        const yPos = row * (itemHeight + 12);
-        
-        if (yPos < flickable.contentY) {
-            flickable.contentY = yPos;
-        } else if (yPos + itemHeight > flickable.contentY + flickable.height) {
-            flickable.contentY = yPos + itemHeight - flickable.height;
+        if (gridView.currentIndex !== selectedIndex) {
+            gridView.currentIndex = selectedIndex;
         }
+        gridView.positionViewAtIndex(selectedIndex, GridView.Contain);
     }
 
     function previewWallpaper(path) {
@@ -256,93 +252,86 @@ FocusScope {
             elide: Text.ElideRight
         }
 
-        // Flickable Grid view
-        Flickable {
-            id: flickable
+        GridView {
+            id: gridView
             width: parent.width
             height: parent.height - searchBarContainer.height - 46
-            contentWidth: width
-            contentHeight: grid.height
+            cellWidth: width / root.columns
+            cellHeight: root.itemHeight + 12
             clip: true
             boundsBehavior: Flickable.StopAtBounds
+            currentIndex: root.selectedIndex
 
-            Grid {
-                id: grid
-                width: parent.width
-                columns: root.columns
-                spacing: 12
+            onCurrentIndexChanged: {
+                root.selectedIndex = currentIndex;
+            }
 
-                Repeater {
-                    model: root.filteredWallpapers
+            model: root.filteredWallpapers
 
-                    delegate: Item {
-                        id: wallpaperItem
-                        required property var modelData
-                        required property int index
+            delegate: Item {
+                id: wallpaperItem
+                width: gridView.cellWidth
+                height: gridView.cellHeight
 
-                        width: root.itemWidth
-                        height: root.itemHeight
+                readonly property bool isSelected: index === root.selectedIndex
+                readonly property bool isActive: modelData.path === root.initialWallpaper
 
-                        readonly property bool isSelected: index === root.selectedIndex
-                        readonly property bool isActive: modelData.path === root.initialWallpaper
+                // Wallpaper Card Wrapper
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: 6
+                    radius: 10
+                    color: isSelected ? Qt.rgba(1, 1, 1, 0.12) : (itemMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(1, 1, 1, 0.03))
+                    clip: true
+                    border.width: isSelected ? 2 : (isActive ? 1 : 0)
+                    border.color: isSelected ? "#ffffff" : Qt.rgba(1, 1, 1, 0.25)
+                    
+                    scale: isSelected ? 1.04 : 1.0
 
-                        // Wallpaper Card Wrapper
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 10
-                            color: isSelected ? Qt.rgba(1, 1, 1, 0.12) : (itemMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(1, 1, 1, 0.03))
-                            clip: true
-                            border.width: isSelected ? 2 : (isActive ? 1 : 0)
-                            border.color: isSelected ? "#ffffff" : Qt.rgba(1, 1, 1, 0.25)
-                            
-                            scale: isSelected ? 1.04 : 1.0
+                    Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                    Behavior on border.color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: 120 } }
 
-                            Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
-                            Behavior on border.color { ColorAnimation { duration: 120 } }
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                    Image {
+                        anchors.fill: parent
+                        anchors.margins: parent.border.width
+                        source: "file://" + modelData.thumb
+                        // Guard decode size to prevent full resolution decoding during initialization
+                        sourceSize.width: root.itemWidth > 0 ? root.itemWidth : 200
+                        sourceSize.height: root.itemHeight > 0 ? root.itemHeight : 113
+                        asynchronous: true
+                        fillMode: Image.PreserveAspectCrop
+                        smooth: true
+                        opacity: isSelected ? 1.0 : 0.75
+                        
+                        Behavior on opacity { NumberAnimation { duration: 120 } }
+                    }
 
-                            Image {
-                                anchors.fill: parent
-                                anchors.margins: parent.border.width
-                                source: "file://" + modelData.thumb
-                                // Guard decode size to prevent full resolution decoding during initialization
-                                sourceSize.width: root.itemWidth > 0 ? root.itemWidth : 200
-                                sourceSize.height: root.itemHeight > 0 ? root.itemHeight : 113
-                                asynchronous: true
-                                fillMode: Image.PreserveAspectCrop
-                                smooth: true
-                                opacity: isSelected ? 1.0 : 0.75
-                                
-                                Behavior on opacity { NumberAnimation { duration: 120 } }
-                            }
+                    // Glowing badge for active wallpaper
+                    Rectangle {
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.margins: 6
+                        width: 14
+                        height: 14
+                        radius: 7
+                        color: "#4caf50"
+                        visible: isActive
+                        border.width: 1.5
+                        border.color: "#ffffff"
+                    }
+                }
 
-                            // Glowing badge for active wallpaper
-                            Rectangle {
-                                anchors.right: parent.right
-                                anchors.bottom: parent.bottom
-                                anchors.margins: 6
-                                width: 14
-                                height: 14
-                                radius: 7
-                                color: "#4caf50"
-                                visible: isActive
-                                border.width: 1.5
-                                border.color: "#ffffff"
-                            }
-                        }
-
-                        MouseArea {
-                            id: itemMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: {
-                                root.selectedIndex = index;
-                                root.previewWallpaper(modelData.path);
-                            }
-                            onDoubleClicked: {
-                                root.confirmWallpaper(modelData.path);
-                            }
-                        }
+                MouseArea {
+                    id: itemMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        root.selectedIndex = index;
+                        root.previewWallpaper(modelData.path);
+                    }
+                    onDoubleClicked: {
+                        root.confirmWallpaper(modelData.path);
                     }
                 }
             }
