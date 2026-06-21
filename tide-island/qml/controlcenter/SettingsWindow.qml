@@ -202,7 +202,7 @@ FloatingWindow {
 
     Process {
         id: generalReadProcess
-        command: ["cat", "/home/pirate/.local/src/HyprDots/hypr/hyprlua/general.lua"]
+        command: ["cat", "/home/pirate/.local/src/HyprDots/hypr/hyprlua/gui.lua"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -222,7 +222,7 @@ FloatingWindow {
 
     Process {
         id: decorationReadProcess
-        command: ["cat", "/home/pirate/.local/src/HyprDots/hypr/hyprlua/decoration.lua"]
+        command: ["cat", "/home/pirate/.local/src/HyprDots/hypr/hyprlua/gui.lua"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -644,7 +644,7 @@ FloatingWindow {
             spacing: 12
 
             Text {
-                text: "Hyprland Styling & Decorations"
+                text: "Hyprland Styling"
                 color: "#ffffff"
                 font.pixelSize: 18
                 font.family: "Inter Display"
