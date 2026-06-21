@@ -130,6 +130,13 @@ hl.bind(
     )
 )
 
+hl.bind(
+    mainMod .. " + period",
+    hl.dsp.exec_cmd(
+        "qs ipc -p " .. os.getenv("HOME") .. "/.local/src/HyprDots/tide-island call island toggleEmojis"
+    )
+)
+
 --hyprpicker
 hl.bind(mainMod .. " +SHIFT + C",hl.dsp.exec_cmd("hyprpicker -a"))
 

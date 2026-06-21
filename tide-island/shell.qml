@@ -125,6 +125,13 @@ Scope {
                     window.toggleClipboard();
             });
         }
+
+        function toggleEmojis() {
+            shellRoot.forEachWindow((window) => {
+                if (window && window.toggleEmojis)
+                    window.toggleEmojis();
+            });
+        }
     }
 
     GlobalShortcut {
