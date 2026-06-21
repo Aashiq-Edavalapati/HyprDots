@@ -65,11 +65,6 @@ hl.bind(mainMod .. " + ALT + 6",hl.dsp.window.move({workspace = 6  }) )
 hl.bind(mainMod .. " + ALT + 7",hl.dsp.window.move({workspace = 7  }) )
 hl.bind(mainMod .. " + ALT + 8",hl.dsp.window.move({workspace = 8  }) )
 hl.bind(mainMod .. " + ALT + 9",hl.dsp.window.move({workspace = 9  }) )
--- move window to next/previous workspace
-hl.bind(mainMod .. " + ALT + left",  hl.dsp.window.move({ workspace = "-1" }))
-hl.bind(mainMod .. " + ALT + right", hl.dsp.window.move({ workspace = "+1" }))
-hl.bind("SUPER + ALT + mouse_up", hl.dsp.window.move({ workspace = "+1" }))
-hl.bind("SUPER + ALT + mouse_down", hl.dsp.window.move({ workspace = "-1" }))
 
 --toggle floating state
 hl.bind(mainMod .. "+ ALT + SPACE", hl.dsp.window.float())
@@ -97,8 +92,7 @@ hl.bind(
 
 --application binds
 -- hl.bind(mainMod .. " +ALT+E", hl.dsp.exec_cmd("kitty yazi"))
--- hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(filemanager))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(code_editor))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
@@ -112,7 +106,7 @@ end)
 
 hl.bind("SUPER+ALT+D", function ()
     hl.dispatch(hl.dsp.workspace.toggle_special("discord_special"))
-    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "vesktop"})
+    hl.workspace_rule({workspace = "special:discord_special", on_created_empty = "discord"})
 end)
 
 hl.bind("SUPER+ALT+E", function ()
