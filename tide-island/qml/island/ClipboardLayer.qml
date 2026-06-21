@@ -26,24 +26,44 @@ FocusScope {
         }
     }
 
+    property string currentTab: "recent" // "recent" or "pinned"
     property var allClips: []
     property int selectedIndex: 0
     property string searchText: ""
     property bool showConfirmModal: false
 
+    readonly property var activeClips: {
+        if (currentTab === "recent") {
+            return allClips;
+        }
+        const result = [];
+        for (let i = 0; i < allClips.length; i++) {
+            if (allClips[i].is_pinned) {
+                result.push(allClips[i]);
+            }
+        }
+        return result;
+    }
+
     readonly property var filteredClips: {
         if (searchText.trim() === "") {
-            return allClips;
+            return activeClips;
         }
         const query = searchText.toLowerCase().trim();
         const result = [];
-        for (let i = 0; i < allClips.length; i++) {
-            const clip = allClips[i];
-            if (clip.content.toLowerCase().indexOf(query) !== -1) {
+        for (let i = 0; i < activeClips.length; i++) {
+            const clip = activeClips[i];
+            const contentToSearch = clip.content || clip.preview || "";
+            if (contentToSearch.toLowerCase().indexOf(query) !== -1) {
                 result.push(clip);
             }
         }
         return result;
+    }
+
+    onCurrentTabChanged: {
+        selectedIndex = 0;
+        flickable.contentY = 0;
     }
 
     Timer {
@@ -62,7 +82,7 @@ FocusScope {
             searchText = "";
             selectedIndex = 0;
             focusTimer.restart();
-            clipListProcess.running = true; // Refresh when opening
+            clipListProcess.running = true;
         }
     }
 
@@ -99,10 +119,47 @@ FocusScope {
         root.closeRequested();
     }
 
+    function togglePin(clip) {
+        if (!clip || !clip.id) return;
+        
+        const isPinned = clip.is_pinned || false;
+        
+        if (isPinned) {
+            Quickshell.execDetached(["python3", Quickshell.shellDir + "/bin/clip_list.py", "--unpin", clip.content]);
+            
+            var updated = [];
+            for (var i = 0; i < root.allClips.length; i++) {
+                var c = root.allClips[i];
+                if (c.id === clip.id) {
+                    c.is_pinned = false;
+                }
+                updated.push(c);
+            }
+            root.allClips = updated;
+        } else {
+            Quickshell.execDetached(["python3", Quickshell.shellDir + "/bin/clip_list.py", "--pin", clip.id]);
+            
+            var updated = [];
+            for (var i = 0; i < root.allClips.length; i++) {
+                var c = root.allClips[i];
+                if (c.id === clip.id) {
+                    c.is_pinned = true;
+                }
+                updated.push(c);
+            }
+            root.allClips = updated;
+        }
+    }
+
     function deleteClip(clip, index) {
         if (!clip || !clip.id) return;
+        
+        if (clip.is_pinned) {
+            Quickshell.execDetached(["python3", Quickshell.shellDir + "/bin/clip_list.py", "--unpin", clip.content]);
+        }
+        
         Quickshell.execDetached(["sh", "-c", "echo -n " + JSON.stringify(clip.id) + " | cliphist delete"]);
-        // Remove locally for instant feedback
+        
         var updated = [];
         for (var i = 0; i < root.allClips.length; i++) {
             if (root.allClips[i].id !== clip.id) {
@@ -110,6 +167,7 @@ FocusScope {
             }
         }
         root.allClips = updated;
+        
         if (root.selectedIndex >= root.filteredClips.length) {
             root.selectedIndex = Math.max(0, root.filteredClips.length - 1);
         }
@@ -148,12 +206,13 @@ FocusScope {
 
         // Search Bar & Clear All Row
         Row {
+            id: searchRow
             width: parent.width
             spacing: 12
 
             // Search Bar Container
             Rectangle {
-                width: parent.width - clearAllButton.width - 12
+                width: parent.width - (clearAllButton.visible ? clearAllButton.width + 12 : 0)
                 height: 44
                 radius: 14
                 color: Qt.rgba(1, 1, 1, 0.05)
@@ -209,6 +268,9 @@ FocusScope {
                                     root.selectedIndex = Math.max(0, root.selectedIndex - 1);
                                     event.accepted = true;
                                 }
+                            } else if (event.key === Qt.Key_Tab && (event.modifiers & Qt.ControlModifier)) {
+                                root.currentTab = root.currentTab === "recent" ? "pinned" : "recent";
+                                event.accepted = true;
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 if (root.filteredClips.length > 0 && root.selectedIndex >= 0 && root.selectedIndex < root.filteredClips.length) {
                                     root.copyClip(root.filteredClips[root.selectedIndex]);
@@ -231,6 +293,7 @@ FocusScope {
             // Clear All Button
             Rectangle {
                 id: clearAllButton
+                visible: root.currentTab === "recent"
                 width: 120
                 height: 44
                 radius: 14
@@ -272,11 +335,89 @@ FocusScope {
             }
         }
 
+        // Sliding pill tab bar
+        Rectangle {
+            id: tabBar
+            width: parent.width
+            height: 36
+            radius: 10
+            color: Qt.rgba(1, 1, 1, 0.03)
+            border.width: 0
+
+            Rectangle {
+                id: tabIndicator
+                width: parent.width / 2 - 8
+                height: parent.height - 8
+                radius: 8
+                color: Qt.rgba(1, 1, 1, 0.08)
+                border.width: 0
+                y: 4
+                x: root.currentTab === "recent" ? 4 : parent.width / 2 + 4
+                
+                Behavior on x {
+                    NumberAnimation {
+                        duration: 180
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+
+            Row {
+                anchors.fill: parent
+                
+                Item {
+                    width: parent.width / 2
+                    height: parent.height
+                    
+                    Text {
+                        text: qsTr("Recent")
+                        anchors.centerIn: parent
+                        font.family: root.textFontFamily
+                        font.pixelSize: 13
+                        font.weight: root.currentTab === "recent" ? Font.Bold : Font.Normal
+                        color: root.currentTab === "recent" ? "#ffffff" : Qt.rgba(1, 1, 1, 0.4)
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                    
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            root.currentTab = "recent";
+                        }
+                    }
+                }
+                
+                Item {
+                    width: parent.width / 2
+                    height: parent.height
+                    
+                    Text {
+                        text: qsTr("Pinned")
+                        anchors.centerIn: parent
+                        font.family: root.textFontFamily
+                        font.pixelSize: 13
+                        font.weight: root.currentTab === "pinned" ? Font.Bold : Font.Normal
+                        color: root.currentTab === "pinned" ? "#ffffff" : Qt.rgba(1, 1, 1, 0.4)
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                    
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            root.currentTab = "pinned";
+                        }
+                    }
+                }
+            }
+        }
+
         // Flickable scroll area for clipboard items
         Flickable {
             id: flickable
             width: parent.width
-            height: parent.height - 44 - 16
+            height: parent.height - searchRow.height - tabBar.height - 32
             contentWidth: width
             contentHeight: listColumn.height
             clip: true
@@ -310,7 +451,7 @@ FocusScope {
                             
                             Behavior on color { ColorAnimation { duration: 100 } }
 
-                            // Header row (contains text preview and delete button)
+                            // Header row (contains text preview, pin button, and delete button)
                             Item {
                                 id: headerItem
                                 width: parent.width
@@ -330,9 +471,40 @@ FocusScope {
                                         font.family: root.textFontFamily
                                         font.pixelSize: 13
                                         font.weight: isSelected ? Font.Medium : Font.Normal
-                                        width: parent.width - deleteButton.width - 24
+                                        width: parent.width - deleteButton.width - pinButton.width - 36
                                         elide: Text.ElideRight
                                         anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    // Pin option
+                                    Rectangle {
+                                        id: pinButton
+                                        width: 36
+                                        height: 36
+                                        radius: 8
+                                        color: pinMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        
+                                        readonly property bool isPinnedItem: root.currentTab === "pinned" || !!modelData.is_pinned
+
+                                        Text {
+                                            text: ""
+                                            font.family: root.iconFontFamily
+                                            font.pixelSize: 14
+                                            color: pinButton.isPinnedItem 
+                                                ? (pinMouseArea.containsMouse ? "#38bdf8" : "#0ea5e9") 
+                                                : (pinMouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.6) : Qt.rgba(1, 1, 1, 0.3))
+                                            anchors.centerIn: parent
+                                        }
+
+                                        MouseArea {
+                                            id: pinMouseArea
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            onClicked: {
+                                                root.togglePin(modelData);
+                                            }
+                                        }
                                     }
 
                                     // Delete option on the right end
@@ -388,7 +560,7 @@ FocusScope {
                                     fillMode: Image.PreserveAspectCrop
                                     asynchronous: true
                                     opacity: 0.3
-                                    sourceSize.width: 100 // low resolution for soft natural blur
+                                    sourceSize.width: 100
                                     sourceSize.height: 50
                                 }
 
@@ -416,7 +588,7 @@ FocusScope {
                         MouseArea {
                             id: itemMouseArea
                             anchors.fill: parent
-                            anchors.rightMargin: 44 // Don't trigger copy when clicking delete
+                            anchors.rightMargin: 96 // Avoid copy on button clicks
                             hoverEnabled: true
                             onContainsMouseChanged: {
                                 if (containsMouse) {
@@ -441,7 +613,7 @@ FocusScope {
         spacing: 12
 
         Text {
-            text: ""
+            text: root.currentTab === "pinned" ? "" : ""
             font.family: root.iconFontFamily
             font.pixelSize: 32
             color: Qt.rgba(1, 1, 1, 0.2)
@@ -449,7 +621,9 @@ FocusScope {
         }
 
         Text {
-            text: qsTr("Clipboard is empty")
+            text: root.currentTab === "pinned" 
+                ? (root.searchText !== "" ? qsTr("No matching pinned items") : qsTr("No pinned items yet"))
+                : (root.searchText !== "" ? qsTr("No matching clips found") : qsTr("Clipboard is empty"))
             font.family: root.textFontFamily
             font.pixelSize: 13
             color: Qt.rgba(1, 1, 1, 0.2)
