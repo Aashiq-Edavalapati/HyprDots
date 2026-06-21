@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell.Bluetooth
+import Quickshell.Io
 import IslandBackend
 
 Item {
@@ -204,22 +205,24 @@ Item {
             return;
 
         batteryModeStateRunning = true;
-        SystemServices.requestTlpState();
+        tlpStateTimeoutTimer.start();
+        ppQueryProcess.running = true;
     }
 
     function applyBatteryModeState(available, profile, output, errorString) {
+        tlpStateTimeoutTimer.stop();
         batteryModeStateRunning = false;
         batteryTlpChecked = true;
         batteryTlpAvailable = !!available;
 
         if (!batteryTlpAvailable) {
             batteryModeBusy = false;
-            batteryModeError = trimString(errorString).length > 0 ? errorString : "TLP is not installed.";
+            batteryModeError = trimString(errorString).length > 0 ? errorString : "power-profiles-daemon is not installed.";
             setBatteryModeVisualIndex(batteryModeAppliedIndex, true);
             return;
         }
 
-        if (batteryModeError === "TLP is not installed.")
+        if (batteryModeError === "power-profiles-daemon is not installed.")
             batteryModeError = "";
 
         let resolvedProfile = trimString(profile);
@@ -245,9 +248,9 @@ Item {
 
     function buildBatteryModeStatusText() {
         if (batteryModeBusy) return "Applying " + batteryModeLabel(batteryModePendingIndex);
-        if (trimString(userConfig.tlpPermissionMode) === "skip") return "TLP disabled";
-        if (!batteryTlpChecked) return "Checking TLP";
-        if (!batteryTlpAvailable) return "TLP is not installed";
+        if (trimString(userConfig.tlpPermissionMode) === "skip") return "Power modes disabled";
+        if (!batteryTlpChecked) return "Checking power profiles...";
+        if (!batteryTlpAvailable) return "power-profiles-daemon is not installed";
         return batteryModeLabel(batteryModeIndex);
     }
 
@@ -260,35 +263,7 @@ Item {
     }
 
     function classifyBatteryModeFailure(exitCode) {
-        const details = trimString(batteryModeLastCommandOutput).toLowerCase();
-
-        if (details.indexOf("sorry, try again") >= 0 || details.indexOf("incorrect password attempt") >= 0)
-            return "The configured sudo password did not work.";
-        if (details.indexOf("pkexec") >= 0 && details.indexOf("not installed") >= 0)
-            return "Install pkexec or set tlpSudoPassword in userconfig.json.";
-        if (details.indexOf("sudo is not installed") >= 0)
-            return "sudo is not installed.";
-        if (details.indexOf("sudo:") >= 0 && details.indexOf("password") >= 0) {
-            if (trimString(userConfig.tlpPermissionMode) === "ask")
-                return "Install pkexec or set tlpSudoPassword in userconfig.json.";
-            return "sudo needs a password; set tlpSudoPassword in userconfig.json.";
-        }
-        if (details.indexOf("sudo:") >= 0 && details.indexOf("no new privileges") >= 0)
-            return "sudo is blocked by the current process security flags.";
-        if (details.indexOf("sudo:") >= 0 && details.indexOf("a terminal is required") >= 0)
-            return "sudo needs a real terminal, but the panel could not open one.";
-        if (details.indexOf("missing root privilege") >= 0)
-            return "TLP needs admin permission.";
-        if (details.indexOf("command not found") >= 0 || details.indexOf("not found") >= 0) {
-            if (details.indexOf("tlp") >= 0)
-                return "TLP is not installed.";
-        }
-
-        if (exitCode === 127)
-            return "TLP is not installed.";
-        if (exitCode === 126)
-            return "Install pkexec or set tlpSudoPassword in userconfig.json.";
-        return "TLP could not apply that mode.";
+        return "Failed to apply power mode.";
     }
 
     function queueBatteryModeStateRefresh(polls) {
@@ -302,7 +277,7 @@ Item {
     function selectBatteryMode(index) {
         if (batteryModeBusy) {
             if (batteryModeSetterRunning)
-                SystemServices.cancelTlpApply();
+                ppSetProcess.running = false;
             batteryModeBusy = false;
             batteryModeSetterRunning = false;
         }
@@ -312,18 +287,18 @@ Item {
         const nextIndex = Math.max(0, Math.min(2, index));
 
         if (trimString(userConfig.tlpPermissionMode) === "skip") {
-            rollbackBatteryMode("TLP mode switching is disabled in userconfig.json.");
+            rollbackBatteryMode("Power mode switching is disabled in userconfig.json.");
             return;
         }
 
         if (!batteryTlpChecked) {
             refreshBatteryModeState();
-            rollbackBatteryMode("Checking TLP. Try again in a moment.");
+            rollbackBatteryMode("Checking power profiles. Try again in a moment.");
             return;
         }
 
         if (!batteryTlpAvailable) {
-            rollbackBatteryMode("TLP is not installed.");
+            rollbackBatteryMode("power-profiles-daemon is not installed.");
             return;
         }
 
@@ -341,7 +316,9 @@ Item {
         batteryModeInfoMessage = "Applying " + batteryModeLabel(nextIndex) + "...";
         setBatteryModeVisualIndex(nextIndex, true);
         batteryModeLastCommandOutput = "";
-        SystemServices.setTlpMode(batteryModeCommand(nextIndex), trimString(userConfig.tlpSudoPassword));
+        
+        ppSetProcess.pendingMode = batteryModeCommand(nextIndex);
+        ppSetProcess.running = true;
     }
 
     function finishBatteryModeApply(success, exitCode, output, errorString) {
@@ -879,14 +856,6 @@ Item {
     Connections {
         target: SystemServices
 
-        function onTlpStateReady(available, profile, output, errorString) {
-            controlCenter.applyBatteryModeState(available, profile, output, errorString);
-        }
-
-        function onTlpSetFinished(success, exitCode, output, errorString) {
-            controlCenter.finishBatteryModeApply(success, exitCode, output, errorString);
-        }
-
         function onBrightnessSnapshotReady(value, errorString) {
             if (errorString === "")
                 controlCenter.applyBrightnessSnapshot(value);
@@ -926,6 +895,46 @@ Item {
         interval: 55
         repeat: false
         onTriggered: controlCenter.flushVolume(false)
+    }
+
+    Timer {
+        id: tlpStateTimeoutTimer
+        interval: 1500
+        repeat: false
+        onTriggered: {
+            if (controlCenter.batteryModeStateRunning && !controlCenter.batteryTlpChecked) {
+                console.log("Power profiles state request timed out, assuming power-profiles-daemon is not installed.");
+                controlCenter.applyBatteryModeState(false, "", "", "power-profiles-daemon is not installed.");
+            }
+        }
+    }
+
+    Process {
+        id: ppQueryProcess
+        command: ["powerprofilesctl", "get"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (this.text) {
+                    const profileName = this.text.trim();
+                    controlCenter.applyBatteryModeState(true, profileName, this.text, "");
+                } else {
+                    controlCenter.applyBatteryModeState(false, "", "", "Failed to read profile.");
+                }
+            }
+        }
+    }
+
+    Process {
+        id: ppSetProcess
+        property string pendingMode: ""
+        command: ["powerprofilesctl", "set", pendingMode]
+        running: false
+        
+        onExited: (exitCode) => {
+            const success = (exitCode === 0);
+            controlCenter.finishBatteryModeApply(success, exitCode, "", success ? "" : "Failed to set profile.");
+        }
     }
 
     Timer {
