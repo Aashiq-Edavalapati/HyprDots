@@ -1113,6 +1113,38 @@ Item {
                     }
                 }
 
+                Rectangle {
+                    id: wallpapersButton
+                    width: 24
+                    height: 24
+                    radius: 12
+                    color: wallpapersButtonMouse.containsMouse ? "#26ffffff" : StyleTokens.transparent
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Behavior on color {
+                        ColorAnimation { duration: 150 }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\uf03e" // Image icon
+                        color: wallpapersButtonMouse.containsMouse ? "#ffffff" : StyleTokens.textSecondary
+                        font.pixelSize: 14
+                        font.family: iconFontFamily
+                    }
+
+                    MouseArea {
+                        id: wallpapersButtonMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            if (controlCenter.shellRootController) {
+                                controlCenter.shellRootController.toggleWallpapers();
+                            }
+                        }
+                    }
+                }
+
                 Row {
                     spacing: 5
                     anchors.verticalCenter: parent.verticalCenter

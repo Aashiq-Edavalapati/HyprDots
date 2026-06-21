@@ -42,6 +42,7 @@ PanelWindow {
     readonly property bool launcherLayerVisible: islandContainer.islandState === "launcher"
     readonly property bool clipboardLayerVisible: islandContainer.islandState === "clipboard"
     readonly property bool emojiPickerLayerVisible: islandContainer.islandState === "emojis"
+    readonly property bool wallpapersLayerVisible: islandContainer.islandState === "wallpapers"
 
     readonly property var userConfig: UserConfig
 
@@ -119,18 +120,18 @@ PanelWindow {
         : Math.max(Math.ceil(4 + root.connectivityDetailHeight + 12), Math.ceil(root.controlCenterWindowHeight))
     exclusiveZone: 38
     aboveWindows: true
-    focusable: root.monitorFocused && (root.overviewVisible || root.connectivityPromptActive || islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis")
+    focusable: root.monitorFocused && (root.overviewVisible || root.connectivityPromptActive || islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis" || islandContainer.islandState === "wallpapers")
     WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: root.monitorFocused && (root.overviewVisible || root.connectivityPromptActive || islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis")
-        ? ((islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis") ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand)
+    WlrLayershell.keyboardFocus: root.monitorFocused && (root.overviewVisible || root.connectivityPromptActive || islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis" || islandContainer.islandState === "wallpapers")
+        ? ((islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis" || islandContainer.islandState === "wallpapers") ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.OnDemand)
         : WlrKeyboardFocus.None
 
     HyprlandFocusGrab {
         id: launcherGrab
-        active: root.monitorFocused && (islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis")
+        active: root.monitorFocused && (islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis" || islandContainer.islandState === "wallpapers")
         windows: [ root ]
         onCleared: {
-            if (islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis") {
+            if (islandContainer.islandState === "launcher" || islandContainer.islandState === "clipboard" || islandContainer.islandState === "emojis" || islandContainer.islandState === "wallpapers") {
                 islandContainer.smartRestoreState();
             }
         }
@@ -329,6 +330,10 @@ PanelWindow {
         islandContainer.toggleEmojis();
     }
 
+    function toggleWallpapers() {
+        islandContainer.toggleWallpapers();
+    }
+
     onOverviewVisibleChanged: {
         if (overviewVisible && monitorFocused) overviewFocusTimer.restart();
     }
@@ -348,6 +353,10 @@ PanelWindow {
         if (emojiPickerLayerVisible && monitorFocused)
             emojisFocusTimer.restart();
     }
+    onWallpapersLayerVisibleChanged: {
+        if (wallpapersLayerVisible && monitorFocused)
+            wallpapersFocusTimer.restart();
+    }
     onOverviewVisualReadyChanged: {
         if (overviewVisualReady) beginOverviewOpening();
     }
@@ -357,6 +366,7 @@ PanelWindow {
         if (launcherLayerVisible && monitorFocused) launcherFocusTimer.restart();
         if (clipboardLayerVisible && monitorFocused) clipboardFocusTimer.restart();
         if (emojiPickerLayerVisible && monitorFocused) emojisFocusTimer.restart();
+        if (wallpapersLayerVisible && monitorFocused) wallpapersFocusTimer.restart();
     }
 
     Timer {
@@ -389,6 +399,13 @@ PanelWindow {
 
     Timer {
         id: emojisFocusTimer
+        interval: 0
+        repeat: false
+        onTriggered: islandContainer.forceActiveFocus()
+    }
+
+    Timer {
+        id: wallpapersFocusTimer
         interval: 0
         repeat: false
         onTriggered: islandContainer.forceActiveFocus()
@@ -457,7 +474,7 @@ PanelWindow {
     FocusScope {
         id: islandContainer
         anchors.fill: parent
-        focus: root.monitorFocused && (root.overviewVisible || root.connectivityPromptActive || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis")
+        focus: root.monitorFocused && (root.overviewVisible || root.connectivityPromptActive || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis" || islandState === "wallpapers")
 
         property string islandState: "normal"
         property string splitIcon: root.defaultSplitIcon
@@ -496,6 +513,7 @@ PanelWindow {
             || islandState === "launcher"
             || islandState === "clipboard"
             || islandState === "emojis"
+            || islandState === "wallpapers"
         readonly property bool splitShowsProgress: islandState === "split" && osdProgress >= 0
         readonly property bool splitShowsText: islandState === "split" && osdProgress < 0 && osdCustomText !== ""
         readonly property bool splitShowsIconOnly: islandState === "split" && osdProgress < 0 && osdCustomText === ""
@@ -716,6 +734,19 @@ PanelWindow {
                 return;
             case "closeEmojis":
                 if (islandState === "emojis")
+                    smartRestoreState();
+                return;
+            case "toggleWallpapers":
+                if (islandState === "wallpapers")
+                    smartRestoreState();
+                else
+                    showWallpapers();
+                return;
+            case "openWallpapers":
+                showWallpapers();
+                return;
+            case "closeWallpapers":
+                if (islandState === "wallpapers")
                     smartRestoreState();
                 return;
             case "toggleOverview":
@@ -978,7 +1009,7 @@ PanelWindow {
         }
 
         function showNotificationCapsule(appName, summary, body) {
-            if (root.overviewVisible || islandState === "control_center" || islandState === "expanded" || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis") return;
+            if (root.overviewVisible || islandState === "control_center" || islandState === "expanded" || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis" || islandState === "wallpapers") return;
 
             const cleanedAppName = cleanNotificationText(appName);
             const cleanedSummary = cleanNotificationText(summary);
@@ -1053,7 +1084,7 @@ PanelWindow {
         }
 
         function showBluetoothExpanded(device) {
-            if (!device || root.overviewVisible || islandState === "control_center" || islandState === "notification" || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis")
+            if (!device || root.overviewVisible || islandState === "control_center" || islandState === "notification" || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis" || islandState === "wallpapers")
                 return;
 
             cancelSideSwipeSettle();
@@ -1123,6 +1154,22 @@ PanelWindow {
                 showEmojis();
         }
 
+        function showWallpapers() {
+            cancelSideSwipeSettle();
+            abortSideTransientMode();
+            clearTransientCapsule();
+            islandState = "wallpapers";
+            mainCapsule.displayedWidth = mainCapsule.baseTargetWidth;
+            stopAutoHideTimer();
+        }
+
+        function toggleWallpapers() {
+            if (islandState === "wallpapers")
+                smartRestoreState();
+            else
+                showWallpapers();
+        }
+
         function showCustomCapsule() {
             if (!hasCustomLeftItems) {
                 showTimeCapsule();
@@ -1143,7 +1190,7 @@ PanelWindow {
 
         function showWorkspaceCapsule(wsId) {
             currentWs = wsId;
-            if (islandState === "control_center" || islandState === "notification" || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis") return;
+            if (islandState === "control_center" || islandState === "notification" || islandState === "launcher" || islandState === "clipboard" || islandState === "emojis" || islandState === "wallpapers") return;
             const animateFromSide = currentTransientOriginSide();
             clearTransientCapsule();
             sideTransientRestoreTimer.stop();
@@ -1198,7 +1245,8 @@ PanelWindow {
                     && islandState !== "bluetooth_expanded"
                     && islandState !== "launcher"
                     && islandState !== "clipboard"
-                    && islandState !== "emojis") {
+                    && islandState !== "emojis"
+                    && islandState !== "wallpapers") {
                 if (islandState === "expanded" && !expandedByPlayerAutoOpen) return;
                 showExpandedPlayer(true);
             }
@@ -1242,6 +1290,7 @@ PanelWindow {
                 case "launcher":
                 case "clipboard":
                 case "emojis":
+                case "wallpapers":
                     return 680;
                 case "expanded":
                 case "bluetooth_expanded":
@@ -1265,6 +1314,7 @@ PanelWindow {
                 case "launcher":
                 case "clipboard":
                 case "emojis":
+                case "wallpapers":
                     return 420;
                 case "expanded":
                 case "bluetooth_expanded":
@@ -1285,6 +1335,7 @@ PanelWindow {
                 case "launcher":
                 case "clipboard":
                 case "emojis":
+                case "wallpapers":
                     return 34;
                 case "expanded":
                 case "bluetooth_expanded":
@@ -1858,6 +1909,28 @@ PanelWindow {
                         textFontFamily: root.textFontFamily
                         heroFontFamily: root.heroFontFamily
                         showCondition: islandContainer.islandState === "emojis"
+                        onCloseRequested: {
+                            islandContainer.islandState = "normal";
+                        }
+                    }
+                }
+            }
+
+            Loader {
+                id: wallpapersLoader
+                anchors.fill: parent
+                active: true
+                asynchronous: false
+                visible: islandContainer.islandState === "wallpapers"
+                focus: islandContainer.islandState === "wallpapers"
+
+                sourceComponent: Component {
+                    WallpaperPickerLayer {
+                        focus: true
+                        iconFontFamily: root.iconFontFamily
+                        textFontFamily: root.textFontFamily
+                        heroFontFamily: root.heroFontFamily
+                        showCondition: islandContainer.islandState === "wallpapers"
                         onCloseRequested: {
                             islandContainer.islandState = "normal";
                         }

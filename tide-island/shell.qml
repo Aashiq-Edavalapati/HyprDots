@@ -132,6 +132,13 @@ Scope {
                     window.toggleEmojis();
             });
         }
+
+        function toggleWallpapers() {
+            shellRoot.forEachWindow((window) => {
+                if (window && window.toggleWallpapers)
+                    window.toggleWallpapers();
+            });
+        }
     }
 
     GlobalShortcut {
