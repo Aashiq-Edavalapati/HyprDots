@@ -116,7 +116,20 @@ FocusScope {
 
     function copyClip(clip) {
         if (!clip || !clip.id) return;
-        Quickshell.execDetached(["sh", "-c", "echo -n " + JSON.stringify(clip.id) + " | cliphist decode > /tmp/clip_temp_$$ && echo -n " + JSON.stringify(clip.id) + " | cliphist delete && wl-copy < /tmp/clip_temp_$$; rm -f /tmp/clip_temp_$$"]);
+        if (clip.is_image) {
+            let ext = "png";
+            const match = clip.content.match(/(png|jpg|jpeg|bmp|gif)\s*\]\]$/i);
+            if (match) {
+                ext = match[1].toLowerCase();
+            }
+            let mime = "image/" + ext;
+            if (ext === "jpg") mime = "image/jpeg";
+            Quickshell.execDetached(["sh", "-c", "echo -n " + JSON.stringify(clip.id) + " | cliphist decode > /tmp/clip_temp_$$ && echo -n " + JSON.stringify(clip.id) + " | cliphist delete && wl-copy --type " + mime + " < /tmp/clip_temp_$$; rm -f /tmp/clip_temp_$$"]);
+        } else if (clip.content.trim().startsWith("file://")) {
+            Quickshell.execDetached(["sh", "-c", "echo -n " + JSON.stringify(clip.id) + " | cliphist decode > /tmp/clip_temp_$$ && echo -n " + JSON.stringify(clip.id) + " | cliphist delete && wl-copy --type text/uri-list < /tmp/clip_temp_$$; rm -f /tmp/clip_temp_$$"]);
+        } else {
+            Quickshell.execDetached(["sh", "-c", "echo -n " + JSON.stringify(clip.id) + " | cliphist decode > /tmp/clip_temp_$$ && echo -n " + JSON.stringify(clip.id) + " | cliphist delete && wl-copy < /tmp/clip_temp_$$; rm -f /tmp/clip_temp_$$"]);
+        }
         root.closeRequested();
     }
 
